@@ -9,6 +9,4 @@ class FavoriteManga(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     manga_id: Mapped[int] = mapped_column(ForeignKey("manga.id", ondelete="CASCADE"))
-    __table_args__ = (
-        UniqueConstraint("user_id", "manga_id", name="_user_manga_favorite"),
-    )
+    __table_args__ = (UniqueConstraint("user_id", "manga_id", name="_user_manga_favorite"),)

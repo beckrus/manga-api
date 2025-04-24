@@ -2,14 +2,25 @@ from pydantic import BaseModel
 
 
 class UserAddDTO(BaseModel):
-    username: int
+    username: str
     email: str
-    password: str | None
-    password_confirm: str | None
+    password: str
+    password_confirm: str
+
+
+class UserDBAddDTO(BaseModel):
+    username: str
+    email: str
+    password_hash: str
 
 
 class UserPatchDTO(BaseModel):
-    username: int | None
+    username: str | None
     email: str | None
     password: str | None
     password_confirm: str | None
+
+
+class UserResponseDTO(BaseModel):
+    username: str
+    email: str

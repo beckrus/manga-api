@@ -4,5 +4,5 @@ from src.models.authors import AuthorsOrm
 
 
 class AuthorsRepository(BaseRepository):
-    model: AuthorsOrm
-    mapper: AuthorsMapper
+    model = AuthorsOrm
+    mapper = AuthorsMapper

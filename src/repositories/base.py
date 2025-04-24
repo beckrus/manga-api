@@ -7,8 +7,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import NoResultFound, IntegrityError
 
 from src.repositories.mappers.base import BaseMapper
-from src.exceptions import ObjectDuplicateException, ObjectNotFoundException
+from src.exceptions import (
+    FKObjectNotFoundException,
+    ObjectDuplicateException,
+    ObjectNotFoundException,
+)
 from src.database import Base
+from utils.re import get_missing_fk
 
 # Type definition for Model
 DBModelType = TypeVar("DBModelType", bound=Base)
@@ -26,12 +31,12 @@ class BaseRepository(Generic[DBModelType, SchemaType]):
     async def get_filtered(self, *filter, **filter_by) -> list[SchemaType]:
         query = select(self.model).filter(*filter).filter_by(**filter_by)
         result = await self.session.execute(query)
-        return [
-            self.mapper.map_to_domain_entity(model) for model in result.scalars().all()
-        ]
+        return [self.mapper.map_to_domain_entity(model) for model in result.scalars().all()]
 
-    async def get_all(self, *args, **kwargs) -> list[SchemaType]:
-        return await self.get_filtered()
+    async def get_all(self) -> list[SchemaType]:
+        query = select(self.model)
+        result = await self.session.execute(query)
+        return [self.mapper.map_to_domain_entity(model) for model in result.scalars().all()]
 
     async def get_one_or_none(self, **filters_by) -> SchemaType | None:
         query = select(self.model).filter_by(**filters_by)
@@ -61,23 +66,43 @@ class BaseRepository(Generic[DBModelType, SchemaType]):
             )
             if e.orig.sqlstate == "23505":
                 raise ObjectDuplicateException from e
+            elif e.orig.sqlstate == "23503":
+                key, value = get_missing_fk(str(e))
+                logging.error(f"Missing Key:{key}, Value:{value}")
+                raise FKObjectNotFoundException from e
             else:
                 logging.critical(
                     f"Unknown error occurred, error type: {type(e.orig.__cause__)=}, input {data=}, source: BaseRepository.add"
                 )
                 raise e
 
-    async def add_bulk(self, data: list[SchemaType]) -> SchemaType:
-        stmt = (
-            insert(self.model)
-            .values([item.model_dump() for item in data])
-            .on_conflict_do_nothing()
-        )
-        await self.session.execute(stmt)
+    async def add_bulk(self, data: list[SchemaType]) -> list[SchemaType]:
+        try:
+            stmt = (
+                insert(self.model)
+                .values([item.model_dump() for item in data])
+                .on_conflict_do_nothing()
+                .returning(self.model)
+            )
+            result = await self.session.execute(stmt)
+            return [self.mapper.map_to_domain_entity(n) for n in result.scalars().all()]
+        except IntegrityError as e:
+            logging.error(
+                f"Can't add data in DB, error type: {type(e.orig.__cause__)=}, input {data=}"
+            )
+            if e.orig.sqlstate == "23505":
+                raise ObjectDuplicateException from e
+            elif e.orig.sqlstate == "23503":
+                key, value = get_missing_fk(str(e))
+                logging.error(f"Missing Key:{key}, Value:{value}")
+                raise FKObjectNotFoundException from e
+            else:
+                logging.critical(
+                    f"Unknown error occurred, error type: {type(e.orig.__cause__)=}, input {data=}, source: BaseRepository.add_bulk"
+                )
+                raise e
 
-    async def edit(
-        self, id: int, data: SchemaType, exclude_unset: bool = False
-    ) -> SchemaType:
+    async def edit(self, id: int, data: SchemaType, exclude_unset: bool = False) -> SchemaType:
         try:
             stmt = (
                 update(self.model)

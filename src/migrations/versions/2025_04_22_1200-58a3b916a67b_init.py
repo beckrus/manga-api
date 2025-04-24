@@ -127,9 +127,7 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("manga_id", "number", name="_uniq_manga_chapter"),
     )
-    op.create_index(
-        op.f("ix_chapters_manga_id"), "chapters", ["manga_id"], unique=False
-    )
+    op.create_index(op.f("ix_chapters_manga_id"), "chapters", ["manga_id"], unique=False)
     op.create_table(
         "comments",
         sa.Column("id", sa.Integer(), nullable=False),

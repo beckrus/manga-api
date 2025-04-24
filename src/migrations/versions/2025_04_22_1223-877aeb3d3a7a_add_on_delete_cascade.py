@@ -21,14 +21,10 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     """Upgrade schema."""
     op.drop_constraint("chapters_manga_id_fkey", "chapters", type_="foreignkey")
-    op.create_foreign_key(
-        None, "chapters", "manga", ["manga_id"], ["id"], ondelete="CASCADE"
-    )
+    op.create_foreign_key(None, "chapters", "manga", ["manga_id"], ["id"], ondelete="CASCADE")
 
 
 def downgrade() -> None:
     """Downgrade schema."""
     op.drop_constraint(None, "chapters", type_="foreignkey")
-    op.create_foreign_key(
-        "chapters_manga_id_fkey", "chapters", "manga", ["manga_id"], ["id"]
-    )
+    op.create_foreign_key("chapters_manga_id_fkey", "chapters", "manga", ["manga_id"], ["id"])

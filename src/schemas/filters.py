@@ -11,19 +11,9 @@ class SortParams(str, Enum):
 
 
 class PaginationParamsSchema(BaseModel):
-    sort: Annotated[
-        SortParams,
-        Query(
-            description="Sort items in ascending (ASC) or descending (DESC) order.",
-            default=SortParams.asc,
-            examples=["ASC", "DESC"],
-        ),
-    ]
     page: Annotated[
         int,
-        Query(
-            description="The page number to retrieve, starting from 1", default=1, ge=1
-        ),
+        Query(description="The page number to retrieve, starting from 1", default=1, ge=1),
     ]
     per_page: Annotated[
         int,
@@ -32,5 +22,30 @@ class PaginationParamsSchema(BaseModel):
             default=10,
             ge=1,
             lt=101,
+        ),
+    ]
+    sort: Annotated[
+        SortParams,
+        Query(
+            description="Sort items in ascending (ASC) or descending (DESC) order.",
+            default=SortParams.asc,
+            examples=["ASC", "DESC"],
+        ),
+    ]
+
+
+class MangaFilterSchema(BaseModel):
+    name: Annotated[
+        str | None,
+        Query(
+            default=None,
+            description="Filter manga by name. Partial matches are allowed.",
+        ),
+    ]
+    author: Annotated[
+        str | None,
+        Query(
+            default=None,
+            description="Filter manga by author name. Partial matches are allowed.",
         ),
     ]

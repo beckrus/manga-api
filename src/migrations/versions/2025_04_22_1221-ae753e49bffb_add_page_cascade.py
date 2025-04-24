@@ -21,14 +21,10 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     """Upgrade schema."""
     op.drop_constraint("pages_chapter_id_fkey", "pages", type_="foreignkey")
-    op.create_foreign_key(
-        None, "pages", "chapters", ["chapter_id"], ["id"], ondelete="CASCADE"
-    )
+    op.create_foreign_key(None, "pages", "chapters", ["chapter_id"], ["id"], ondelete="CASCADE")
 
 
 def downgrade() -> None:
     """Downgrade schema."""
     op.drop_constraint(None, "pages", type_="foreignkey")
-    op.create_foreign_key(
-        "pages_chapter_id_fkey", "pages", "chapters", ["chapter_id"], ["id"]
-    )
+    op.create_foreign_key("pages_chapter_id_fkey", "pages", "chapters", ["chapter_id"], ["id"])

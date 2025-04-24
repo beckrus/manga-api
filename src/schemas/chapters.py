@@ -1,20 +1,24 @@
 from pydantic import BaseModel
 
-from src.schemas.pages import PageForChapterDTO
-
 
 class ChapterAddDTO(BaseModel):
     number: int
-    manga_id: str
     is_premium: bool
 
 
-class ChapterPatchDTO(BaseModel):
-    number: int | None
-    url: str | None
+class ChapterPatchDTO(ChapterAddDTO):
+    number: int | None = None
+    is_premium: bool | None = None
 
-class ChapterAddDTO(ChapterAddDTO):
+
+class ChapterDBAddDTO(ChapterAddDTO):
+    manga_id: int
+    created_by: int
+
+
+class ChapterResponseDTO(ChapterAddDTO):
+    id: int
     number: int
-    manga_id: str
+    manga_id: int
     is_premium: bool
-    pages: list[PageForChapterDTO]
+    # pages: list[PageForChapterDTO]

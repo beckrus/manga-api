@@ -9,9 +9,17 @@ class MangaAddDTO(BaseModel):
     image: str | None
 
 
+class MangaDBAddDTO(MangaAddDTO):
+    created_by: int
+
+
+class MangaResponseDTO(MangaAddDTO):
+    id: int
+
+
 class MangaPatchDTO(BaseModel):
-    author: int | None
-    main_name: str | None
-    secondary_name: str | None
-    description: str | None
-    image: str | None
+    author: int | None = None
+    main_name: str | None = None
+    secondary_name: str | None = None
+    description: str | None = None
+    image: str | None = None

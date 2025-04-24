@@ -23,5 +23,5 @@ class UserOrm(Base):
     )
 
     favorite_books: Mapped[list["MangaOrm"]] = relationship(
-        back_populates="manga", secondary="favorite_manga"
+        back_populates="favorited_by", secondary="favorite_manga"
     )

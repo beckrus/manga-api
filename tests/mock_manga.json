@@ -1,0 +1,50 @@
+[
+    {
+        "author": 1,
+        "main_name": "One Piece: Grand Voyage",
+        "secondary_name": "ワンピース：グランドボヤージュ",
+        "description": "Эпическое продолжение приключений пиратов в поисках сокровищ и свободы.",
+        "image": "one_piece_grand_voyage.jpg",
+        "created_by": 1
+    },
+    {
+        "author": 2,
+        "main_name": "Naruto: Legacy",
+        "secondary_name": "ナルト：レガシー",
+        "description": "История следующего поколения ниндзя, вдохновленного великим героем.",
+        "image": "naruto_legacy.jpg",
+        "created_by": 1
+    },
+    {
+        "author": 3,
+        "main_name": "Bleach: Soul Revival",
+        "secondary_name": "ブリーチ：ソウルリバイバル",
+        "description": "Новые угрозы, новые синигами, старая магия клинков души.",
+        "image": "bleach_soul_revival.jpg",
+        "created_by": 1
+    },
+    {
+        "author": 4,
+        "main_name": "Titan Requiem",
+        "secondary_name": "タイタンレクイエム",
+        "description": "Мир после титанов. Новая эра, новые вопросы о свободе.",
+        "image": "titan_requiem.jpg",
+        "created_by": 1
+    },
+    {
+        "author": 5,
+        "main_name": "Dragon Ball: Omega",
+        "secondary_name": "ドラゴンボール：オメガ",
+        "description": "Сайяны против космических богов в битве за вселенную.",
+        "image": "dragon_ball_omega.jpg",
+        "created_by": 1
+    },
+    {
+        "author": 6,
+        "main_name": "Hunter X Hunter: Eclipse",
+        "secondary_name": "ハンター×ハンター：エクリプス",
+        "description": "Охота продолжается под тенью великого затмения.",
+        "image": "hunter_eclipse.jpg",
+        "created_by": 1
+    }
+]

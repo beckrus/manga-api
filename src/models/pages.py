@@ -1,7 +1,11 @@
 from datetime import datetime
+import typing
 from sqlalchemy import DateTime, ForeignKey, UniqueConstraint, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.database import Base
+
+if typing.TYPE_CHECKING:
+    from src.models.chapters import ChaptersOrm
 
 
 class PagesOrm(Base):
@@ -9,7 +13,9 @@ class PagesOrm(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     number: Mapped[int]
+
     url: Mapped[str]
+
     chapter_id: Mapped[int] = mapped_column(
         ForeignKey("chapters.id", ondelete="CASCADE"), index=True
     )
@@ -20,6 +26,6 @@ class PagesOrm(Base):
         DateTime, server_default=func.now(), onupdate=func.now()
     )
 
-    __table_args__ = (
-        UniqueConstraint("chapter_id", "number", name="_uniq_chapter_page"),
-    )
+    chapter: Mapped["ChaptersOrm"] = relationship(back_populates="pages")
+
+    __table_args__ = (UniqueConstraint("chapter_id", "number", name="_uniq_chapter_page"),)

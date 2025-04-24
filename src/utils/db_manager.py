@@ -1,5 +1,10 @@
 from collections.abc import Callable
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.repositories.pages import PagesRepository
+from src.repositories.chapters import ChaptersRepository
+from src.repositories.users import UsersRepository
+from src.repositories.manga import MangaRepository
 from src.repositories.authors import AuthorsRepository
 
 
@@ -10,7 +15,11 @@ class DBManager:
     async def __aenter__(self):
         self.session = self.session_factory()
 
-        self.hotels = AuthorsRepository(self.session)
+        self.authors = AuthorsRepository(self.session)
+        self.manga = MangaRepository(self.session)
+        self.users = UsersRepository(self.session)
+        self.chapters = ChaptersRepository(self.session)
+        self.pages = PagesRepository(self.session)
 
         return self
 

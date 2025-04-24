@@ -6,7 +6,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from fastapi.staticfiles import StaticFiles
 
 from src.api.auth import router as auth_router
 from src.api.users import router as users_router
@@ -18,7 +18,9 @@ from src.api.comments import router as comments_router
 from src.api.favorites import router as favorites_router
 
 
-app = FastAPI(description="Library")
+app = FastAPI(description="Manga Reader")
+
+app.mount("/media", StaticFiles(directory="media"), name="media")
 
 app.include_router(auth_router)
 app.include_router(users_router)
@@ -32,7 +34,8 @@ app.include_router(favorites_router)
 app.add_middleware(
     CORSMiddleware,
     allow_methods=["*"],
-    allow_headers=["*"],)
+    allow_headers=["*"],
+)
 
 
 reports = [
