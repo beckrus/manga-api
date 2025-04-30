@@ -32,7 +32,7 @@ logging.basicConfig(level=logging.INFO, format=FORMAT, datefmt="%d/%m/%Y %I:%M:%
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logging.info("enter lifespan")
-    
+
     await redis_manager.connect()
     FastAPICache.init(RedisBackend(redis_manager.redis), prefix="fastapi-cache")
     yield
