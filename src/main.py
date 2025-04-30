@@ -13,7 +13,6 @@ import uvicorn
 sys.path.append(str(Path(__file__).parent.parent))
 
 
-from src.config import settings
 from src.utils.redis_connector import redis_manager
 from src.api.auth import router as auth_router
 from src.api.users import router as users_router
@@ -63,10 +62,11 @@ app.add_middleware(
 
 
 if __name__ == "__main__":
-    uv_settings = {"app": "main:app", 
-                   "reload": False, 
-                   "host": "0.0.0.0", 
-                   "port": 8000,
-                   "log_level": "info"
-                   }
+    uv_settings = {
+        "app": "main:app",
+        "reload": False,
+        "host": "0.0.0.0",
+        "port": 8000,
+        "log_level": "info",
+    }
     uvicorn.run(**uv_settings)
