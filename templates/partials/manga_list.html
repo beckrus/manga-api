@@ -1,0 +1,18 @@
+{% for manga in mangas %}
+<div class="bg-white rounded-lg shadow-md p-4 mb-4">
+    <div class="flex flex-col md:flex-row items-start md:items-center">
+        <img src="{{ manga.image or 'https://via.placeholder.com/100x150' }}" alt="{{ manga.main_name }}" class="w-24 h-36 object-cover rounded mr-4 mb-2 md:mb-0">
+        <div>
+            <h2 class="text-xl font-semibold">{{ manga.main_name }}</h2>
+            {% if manga.secondary_name %}
+            <p class="text-sm text-gray-500">{{ manga.secondary_name }}</p>
+            {% endif %}
+            <p class="mt-2 text-gray-700 text-sm line-clamp-3">{{ manga.description }}</p>
+            <div class="mt-3 flex space-x-2">
+                <a href="/web/manga/{{ manga.id }}" class="text-blue-600 hover:underline">Подробнее</a>
+                <a href="/web/manga/{{ manga.id }}/reader" class="text-purple-600 hover:underline">Читать с начала</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}

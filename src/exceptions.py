@@ -87,7 +87,7 @@ class BadFileExtException(BaseException):
 
 
 class BadFileExtHTTPException(BaseHTTPException):
-    status_code = (400,)
+    status_code = 400
     detail = "File must be a .zip archive."
 
 
@@ -124,3 +124,126 @@ class PageFileImageNameException(BaseException):
 class PageFileImageNameHTTPException(BaseHTTPException):
     status_code = 404
     detail = "Images in the file should be named in numeric"
+
+
+class UserNotFoundException(BaseException):
+    detail = "User not found"
+
+
+class UserNotFoundHTTPException(BaseHTTPException):
+    status_code = 404
+    detail = "User not found"
+
+
+class UserDuplicateException(BaseException):
+    detail = "User already exist"
+
+
+class UserDuplicateHTTPException(BaseHTTPException):
+    status_code = 409
+    detail = "User already exist"
+
+
+class PasswordMatchException(BaseException):
+    detail = "Passwords don't match"
+
+
+class PasswordMatchHTTPException(BaseHTTPException):
+    status_code = 422
+    detail = "Passwords don't match"
+
+
+class UserAuthException(BaseException):
+    detail = "Invalid username or password"
+
+
+class UserAuthHTTPException(BaseHTTPException):
+    status_code = 401
+    detail = "Invalid username or password"
+
+
+class TokenErrorHttpException(BaseHTTPException):
+    status_code = 401
+    detail = "Invalid token"
+
+
+class AccessForbiddenException(BaseHTTPException):
+    status_code = 401
+    detail = "Access denied"
+
+
+class AccessForbiddenHttpException(BaseHTTPException):
+    status_code = 401
+    detail = "Access denied"
+
+
+class AlreadyRegisteredHttpException(BaseHTTPException):
+    status_code = 401
+    detail = "You are logged in. Log out and register a new account."
+
+
+class FavoriteNotFoundException(BaseException):
+    detail = "This manga not in the favorite"
+
+
+class FavoriteNotFoundHttpException(BaseHTTPException):
+    status_code = 404
+    detail = "This manga not in the favorite"
+
+
+class FavoriteDuplicateException(BaseException):
+    detail = "This manga already in the favorite"
+
+
+class FavoriteDuplicateHTTPException(BaseHTTPException):
+    status_code = 409
+    detail = "This manga already in the favorite"
+
+
+class CommentDuplicateException(BaseException):
+    detail = "You can leave only one comment"
+
+
+class CommentDuplicateHTTPException(BaseHTTPException):
+    status_code = 409
+    detail = "You can leave only one comment for manga"
+
+
+class CommentNotFoundException(BaseException):
+    detail = "Commetn not found"
+
+
+class CommentNotFoundHttpException(BaseHTTPException):
+    status_code = 404
+    detail = "Commetn not found"
+
+
+class RedisConnectionError(BaseException):
+    detail = "Failed to established Redis connection"
+
+
+class PurchasesChapterDuplicateException(BaseException):
+    detail = "The chapter's already been purchased"
+
+
+class PurchasesChapterDuplicateHTTPException(BaseHTTPException):
+    status_code = 409
+    detail = "The chapter's already been purchased"
+
+
+class ChapterIsFreeException(BaseException):
+    detail = "Chapter is free"
+
+
+class ChapterIsFreeHTTPException(BaseHTTPException):
+    status_code = 400
+    detail = "Chapter is free"
+
+
+class NotEnoughtCoinsException(BaseException):
+    detail = "Chapter is free"
+
+
+class NotEnoughtCoinsHTTPException(BaseHTTPException):
+    status_code = 400
+    detail = "Need more gold"

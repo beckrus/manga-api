@@ -52,8 +52,8 @@ class BaseRepository(Generic[DBModelType, SchemaType]):
             result = await self.session.execute(query)
             data = result.scalars().one()
             return self.mapper.map_to_domain_entity(data)
-        except NoResultFound:
-            raise ObjectNotFoundException
+        except NoResultFound as e:
+            raise ObjectNotFoundException from e
 
     async def add(self, data: SchemaType) -> None:
         try:
@@ -112,8 +112,8 @@ class BaseRepository(Generic[DBModelType, SchemaType]):
             )
             result = await self.session.execute(stmt)
             return self.mapper.map_to_domain_entity(result.scalars().one())
-        except NoResultFound:
-            raise ObjectNotFoundException
+        except NoResultFound as e:
+            raise ObjectNotFoundException from e
 
     async def delete(self, id) -> None:
         stmt = delete(self.model).filter_by(id=id)

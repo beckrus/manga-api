@@ -11,6 +11,16 @@ class Settings(BaseSettings):
     DB_USER: str
     DB_PASS: str
 
+    JWT_SECRET_KEY: str
+    JWT_ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    REFRESH_TOKEN_EXPIRE_MINUTES: int
+
+    REDIS_HOST: str
+    REDIS_PORT: int
+
+    SAVE_IMG_FOLDER: str
+
     @property
     def DB_URL(self):
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"

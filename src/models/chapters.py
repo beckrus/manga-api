@@ -18,6 +18,7 @@ class ChaptersOrm(Base):
     manga_id: Mapped[int] = mapped_column(ForeignKey("manga.id", ondelete="CASCADE"), index=True)
 
     is_premium: Mapped[bool] = mapped_column(default=True)
+    price: Mapped[int] = mapped_column(default=0)
     created_by: Mapped[int] = mapped_column(ForeignKey("users.id"))
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     modified_at: Mapped[datetime] = mapped_column(

@@ -15,6 +15,12 @@ class MangaDBAddDTO(MangaAddDTO):
 
 class MangaResponseDTO(MangaAddDTO):
     id: int
+    count_views: int
+    count_bookmarks: int
+
+
+class MangaResponseWithRelDTO(MangaResponseDTO):
+    current_reading_chapter: int | None = None
 
 
 class MangaPatchDTO(BaseModel):
@@ -23,3 +29,11 @@ class MangaPatchDTO(BaseModel):
     secondary_name: str | None = None
     description: str | None = None
     image: str | None = None
+
+
+class MangaIncreaseViewsDTO(BaseModel):
+    count_views: int
+
+
+class MangaChangeBookmarksCountDTO(BaseModel):
+    count_bookmarks: int

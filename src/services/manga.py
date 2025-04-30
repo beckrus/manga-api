@@ -18,9 +18,9 @@ class MangaService(BaseService):
             offset=(pagination.page - 1) * pagination.per_page,
         )
 
-    async def get_manga_by_id(self, id: int):
+    async def get_manga_by_id(self, manga_id: int, user_id: int | None):
         try:
-            return await self.db.manga.get_one_by_id(id)
+            return await self.db.manga.get_one_by_id_with_progress(manga_id, user_id)
         except ObjectNotFoundException as e:
             raise MangaNotFoundException from e
 

@@ -1,6 +1,6 @@
 from datetime import datetime
-from sqlalchemy import DateTime, ForeignKey, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import DateTime, ForeignKey, UniqueConstraint, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.database import Base
 
 
@@ -15,3 +15,7 @@ class CommentsOrm(Base):
     modified_at: Mapped[datetime] = mapped_column(
         DateTime, server_default=func.now(), onupdate=func.now()
     )
+
+    user = relationship("UserOrm", lazy="selectin")
+
+    __table_args__ = (UniqueConstraint("user_id", "manga_id", name="_user_manga_comment"),)

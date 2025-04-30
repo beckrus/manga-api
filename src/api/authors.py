@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi_cache.decorator import cache
 
 from src.exceptions import (
@@ -8,7 +8,7 @@ from src.exceptions import (
     AuthorNotFoundHTTPException,
 )
 from src.services.authors import AuthorsService
-from src.api.dependencies import DBDep
+from src.api.dependencies import DBDep, get_admin_user
 from src.schemas.authors import AuthorAddDTO, AuthorPatchDTO
 
 
@@ -49,6 +49,7 @@ async def get_authors(db: DBDep, name: str | None = None):
 
     - **Returns**: The added author(s) with their generated IDs.
     """,
+    dependencies=[Depends(get_admin_user)],
 )
 async def add_author(db: DBDep, data: AuthorAddDTO | list[AuthorAddDTO]):
     try:
@@ -89,6 +90,7 @@ async def get_author(db: DBDep, author_id: int):
     - **Returns**: The updated details of the author.
     - **Error**: Raises a 404 error if the author with the specified ID is not found.
     """,
+    dependencies=[Depends(get_admin_user)],
 )
 async def modify_author(db: DBDep, author_id: int, data: AuthorPatchDTO):
     try:
@@ -107,6 +109,7 @@ async def modify_author(db: DBDep, author_id: int, data: AuthorPatchDTO):
     - **Returns**: No content (204 status code) if the deletion is successful.
     - **Error**: Raises a 404 error if the author with the specified ID is not found.
     """,
+    dependencies=[Depends(get_admin_user)],
 )
 async def delete_author(db: DBDep, author_id: int):
     try:

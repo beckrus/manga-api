@@ -1,7 +1,9 @@
 from typing import Annotated
-from fastapi import APIRouter, File, Form, UploadFile
+from fastapi import APIRouter, Depends, File, Form, UploadFile
 from fastapi_cache.decorator import cache
 
+from src.services.read_progress import ReadProgresService
+from src.services.views import ViewsService
 from src.services.pages import PagesService
 from src.exceptions import (
     BadFileExtException,
@@ -18,9 +20,9 @@ from src.exceptions import (
     PageFileImageNameHTTPException,
 )
 from src.services.chapters import ChaptersService
-from src.api.dependencies import DBDep
-from src.schemas.chapters import ChapterAddDTO, ChapterPatchDTO
-from src.utils.check_file import file_inspection, rm_file, save_page_files
+from src.api.dependencies import DBDep, UserIdAdminDep, get_admin_user, get_user_or_ip
+from src.schemas.chapters import ChapterAddDTO, ChapterPatchDTO, ChapterResponseDTO
+from src.utils.check_file import file_inspection, rm_chapter_files, rm_file, save_page_files
 
 
 router = APIRouter(prefix="/manga/{manga_id}/chapters", tags=["Chapters"])
@@ -51,9 +53,12 @@ async def get_chapters(db: DBDep, manga_id: int):
     - **Error**: Raises a 404 error if the chapter with the specified ID is not found.
     """,
 )
-async def get_chapter_by_id(db: DBDep, chapter_id: int):
+async def get_chapter_by_id(db: DBDep, chapter_id: int, tracking_info=Depends(get_user_or_ip)):
     try:
-        return await ChaptersService(db).get_chapter_by_id(chapter_id)
+        chapter = await ChaptersService(db).get_chapter_by_id(chapter_id)
+        await ViewsService(db).increase_count_views(chapter.manga_id, tracking_info)
+        await ReadProgresService(db).add_progress(chapter.manga_id, chapter_id, tracking_info)
+        return chapter
     except ChapterNotFoundException:
         raise ChapterNotFoundHTTPException
 
@@ -76,26 +81,22 @@ async def get_chapter_by_id(db: DBDep, chapter_id: int):
 async def add_chapter(
     db: DBDep,
     manga_id: int,
-    number: Annotated[int, Form()],
+    number: Annotated[int, Form(ge=0)],
+    price: Annotated[int, Form(ge=0)],
     is_premium: Annotated[bool, Form()],
     file: Annotated[UploadFile, File()],
-    user_id: int = 1,
-):
-    chapter_data = ChapterAddDTO(
-        number=number,
-        is_premium=is_premium,
-    )
+    user_id: UserIdAdminDep,
+) -> ChapterResponseDTO:
+    chapter_data = ChapterAddDTO(number=number, is_premium=is_premium, price=price)
     try:
-        user_id = 1
         file_path = file_inspection(file)
 
         chapter = await ChaptersService(db).add_chapter(
-            manga_id=manga_id, user_id=1, data=chapter_data
+            manga_id=manga_id, user_id=user_id, data=chapter_data
         )
 
-        chapter_number = chapter.number
         chapter_id = chapter.id
-        pages_path = save_page_files(manga_id, chapter_number, file_path)
+        pages_path = save_page_files(manga_id, chapter_id, file_path)
         for k, v in enumerate(pages_path):
             await PagesService(db).add_page(
                 chapter_id=chapter_id, user_id=user_id, number=k + 1, url=v
@@ -131,6 +132,7 @@ async def add_chapter(
     - **Returns**: The updated details of the chapter.
     - **Error**: Raises a 404 error if the chapter with the specified ID is not found.
     """,
+    dependencies=[Depends(get_admin_user)],
 )
 async def modify_chapter(db: DBDep, manga_id: int, chapter_id: int, data: ChapterPatchDTO):
     try:
@@ -150,9 +152,11 @@ async def modify_chapter(db: DBDep, manga_id: int, chapter_id: int, data: Chapte
     - **Error**: Raises a 404 error if the chapter with the specified ID is not found.
     """,
     status_code=204,
+    dependencies=[Depends(get_admin_user)],
 )
 async def delete_chapter(db: DBDep, manga_id: int, chapter_id: int):
     try:
+        rm_chapter_files(manga_id, chapter_id)
         return await ChaptersService(db).delete_chapter(chapter_id)
     except ChapterNotFoundException:
         raise ChapterNotFoundHTTPException

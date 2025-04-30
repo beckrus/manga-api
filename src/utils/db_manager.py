@@ -1,6 +1,10 @@
 from collections.abc import Callable
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.repositories.purchases_chapters import PurchasesChaptersRepository
+from src.repositories.read_progress import ReadingProgressRepository
+from src.repositories.comments import CommentsRepository
+from src.repositories.favorites import FavoritesRepository
 from src.repositories.pages import PagesRepository
 from src.repositories.chapters import ChaptersRepository
 from src.repositories.users import UsersRepository
@@ -20,6 +24,10 @@ class DBManager:
         self.users = UsersRepository(self.session)
         self.chapters = ChaptersRepository(self.session)
         self.pages = PagesRepository(self.session)
+        self.favorites = FavoritesRepository(self.session)
+        self.comments = CommentsRepository(self.session)
+        self.read_progress = ReadingProgressRepository(self.session)
+        self.purchases_chapters = PurchasesChaptersRepository(self.session)
 
         return self
 

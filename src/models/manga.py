@@ -6,7 +6,7 @@ from src.database import Base
 
 if typing.TYPE_CHECKING:
     from src.models.chapters import ChaptersOrm
-    from models.users import UserOrm
+    from src.models.users import UserOrm
 
 
 class MangaOrm(Base):

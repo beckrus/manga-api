@@ -20,6 +20,9 @@ class ChaptersService(BaseService):
         except ObjectNotFoundException as e:
             raise ChapterNotFoundException from e
 
+    async def get_chapter_by_number(self, chapter_number: int, manga_id: int):
+        return await self.db.chapters.get_page_by_manga_and_number(chapter_number, manga_id)
+
     async def add_chapter(self, manga_id: int, user_id: int, data: ChapterAddDTO):
         try:
             chapters = ChapterDBAddDTO.model_validate(

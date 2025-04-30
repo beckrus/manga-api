@@ -2,11 +2,12 @@ from datetime import datetime
 import typing
 from sqlalchemy import DateTime, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from src.database import Base
 
 
 if typing.TYPE_CHECKING:
-    from models.manga import MangaOrm
+    from src.models.manga import MangaOrm
 
 
 class UserOrm(Base):
@@ -21,6 +22,8 @@ class UserOrm(Base):
     modified_at: Mapped[datetime] = mapped_column(
         DateTime, server_default=func.now(), onupdate=func.now()
     )
+
+    coin_balance: Mapped[int] = mapped_column(default=100)
 
     favorite_books: Mapped[list["MangaOrm"]] = relationship(
         back_populates="favorited_by", secondary="favorite_manga"

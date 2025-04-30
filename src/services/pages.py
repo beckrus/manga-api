@@ -14,9 +14,12 @@ class PagesService(BaseService):
     async def get_pages(self, chapter_id: int):
         return await self.db.pages.get_filtered(chapter_id=chapter_id)
 
-    async def get_page_by_id(self, id: int):
+    async def get_page_by_id(self, chapter_id: int, number: int):
         try:
-            return await self.db.pages.get_one_by_id(id)
+            page = await self.db.pages.get_one_or_none(chapter_id=chapter_id, number=number)
+            if page is None:
+                raise PageNotFoundException
+            return page
         except ObjectNotFoundException as e:
             raise PageNotFoundException from e
 

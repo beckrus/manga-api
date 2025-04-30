@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi_cache.decorator import cache
 
 from src.exceptions import (
@@ -10,7 +10,14 @@ from src.exceptions import (
     MangaNotFoundHTTPException,
 )
 from src.services.manga import MangaService
-from src.api.dependencies import DBDep, MangaFilterDep, PaginationDep
+from src.api.dependencies import (
+    DBDep,
+    MangaFilterDep,
+    PaginationDep,
+    UserIdDep,
+    get_admin_user,
+    get_user_or_ip,
+)
 from schemas.manga import MangaAddDTO, MangaPatchDTO
 
 
@@ -47,17 +54,16 @@ async def get_manga(db: DBDep, pagination: PaginationDep, filter: MangaFilterDep
 
 @cache(expire=1)
 @router.get("/{manga_id}")
-async def get_manga_by_id(db: DBDep, manga_id: int):
+async def get_manga_by_id(db: DBDep, manga_id: int, tracking_info=Depends(get_user_or_ip)):
     try:
-        return await MangaService(db).get_manga_by_id(manga_id)
+        return await MangaService(db).get_manga_by_id(manga_id, tracking_info.user_id)
     except MangaNotFoundException:
         raise MangaNotFoundHTTPException
 
 
 @router.post("")
-async def add_manga(db: DBDep, data: MangaAddDTO | list[MangaAddDTO]):
+async def add_manga(db: DBDep, data: MangaAddDTO | list[MangaAddDTO], user_id: UserIdDep):
     try:
-        user_id = 1
         return await MangaService(db).add_manga(user_id, data)
     except AuthorNotFoundException:
         raise AuthorNotFoundHTTPException
@@ -65,7 +71,7 @@ async def add_manga(db: DBDep, data: MangaAddDTO | list[MangaAddDTO]):
         raise MangaDuplicateHTTPException
 
 
-@router.patch("/{manga_id}")
+@router.patch("/{manga_id}", dependencies=[Depends(get_admin_user)])
 async def modify_manga(db: DBDep, manga_id: int, data: MangaPatchDTO):
     try:
         return await MangaService(db).modify_manga(manga_id, data)
@@ -73,7 +79,7 @@ async def modify_manga(db: DBDep, manga_id: int, data: MangaPatchDTO):
         raise MangaNotFoundHTTPException
 
 
-@router.delete("/{manga_id}", status_code=204)
+@router.delete("/{manga_id}", status_code=204, dependencies=[Depends(get_admin_user)])
 async def delete_manga(db: DBDep, manga_id: int):
     try:
         return await MangaService(db).delete_manga(manga_id)

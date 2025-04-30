@@ -5,6 +5,7 @@ import zipfile
 
 from starlette.datastructures import UploadFile
 
+from src.config import settings
 from src.exceptions import (
     BadFileExtException,
     BadFileExtInArchiveException,
@@ -49,11 +50,16 @@ def rm_file(file_path: str) -> None:
     Path.unlink(file_to_rem)
 
 
-def save_page_files(manga_id: int, chapter_number: int, file_path: str) -> list[str]:
+def rm_chapter_files(manga_id: int, chapter_id: int) -> None:
+    path_to_rm = Path(f"./{settings.SAVE_IMG_FOLDER}/manga/{manga_id}/chapters/{chapter_id}/")
+    shutil.rmtree(path_to_rm)
+
+
+def save_page_files(manga_id: int, chapter_id: int, file_path: str) -> list[str]:
     zip = zipfile.ZipFile(file_path)
     files_in_zip: list[str] = zip.namelist()
-    save_path = f"./media/manga/{manga_id}/chapters/{chapter_number}/"
-    url_path = f"/media/manga/{manga_id}/chapters/{chapter_number}/"
+    save_path = f"./{settings.SAVE_IMG_FOLDER}/manga/{manga_id}/chapters/{chapter_id}/"
+    url_path = f"/{settings.SAVE_IMG_FOLDER}/manga/{manga_id}/chapters/{chapter_id}/"
     Path(save_path).mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(file_path, "r") as zip_ref:
         zip_ref.extractall(save_path)

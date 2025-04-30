@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ manga.main_name }} | Манга</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex justify-center">
+    <div class="w-full max-w-4xl p-6">
+        <div class="bg-white rounded shadow p-6 mb-8">
+            <h1 class="text-3xl font-bold mb-2 text-center">{{ manga.main_name }}</h1>
+            {% if manga.secondary_name %}
+                <h2 class="text-lg text-gray-500 mb-4 text-center">{{ manga.secondary_name }}</h2>
+            {% endif %}
+            <div class="flex justify-center border-md flex-wrap items-end gap-6 px-1 lg:gap-8">
+                <div class="flex flex-col items-start">
+                    <p class="my-0">
+                        В закладках
+                    </p>
+                    <p class="flex justify-center items-center whitespace-nowrap gap-2 m-auto">
+                        <svg class="w-4" focusable="false" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M19 18l2 1V3c0-1.1-.9-2-2-2H8.99C7.89 1 7 1.9 7 3h10c1.1 0 2 .9 2 2v13zM15 5H5c-1.1 0-2 .9-2 2v16l7-3 7 3V7c0-1.1-.9-2-2-2z">
+                            </path>
+                        </svg>
+                        {{ manga.count_bookmarks }}
+                    </p>
+                </div>
+                <div class="flex flex-col items-start">
+                    <p class="my-0">
+                        Просмотров
+                    </p>
+                    <p class="flex justify-center items-center whitespace-nowrap gap-2 m-auto">
+                        <svg class="w-4" focusable="false" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"></path>
+                        </svg>
+                        <span class="text-center">{{ manga.count_views }}</span>
+                    </p>
+                </div>
+            </div>
+            {% if manga.image %}
+                <div class="flex justify-center mb-4">
+                    <img src="{{ manga.image }}" alt="{{ manga.main_name }}" class="max-w-xs rounded shadow">
+                </div>
+            {% endif %}
+            <p class="text-gray-700 mb-4 text-justify">{{ manga.description }}</p>
+        </div>
+
+        <div class="bg-white rounded shadow p-6">
+            <h2 class="text-2xl font-semibold mb-4">Главы</h2>
+            <ul class="space-y-2">
+                {% for chapter in chapters %}
+                    <li>
+                        <a href="/web/manga/{{ manga.id }}/chapters/{{ chapter.number }}"
+                           class="block px-4 py-2 bg-blue-100 hover:bg-blue-200 rounded transition">
+                            Глава {{ chapter.number }}{% if chapter.is_premium %} 🔒{% endif %}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
