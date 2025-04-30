@@ -32,6 +32,7 @@ logging.basicConfig(level=logging.INFO, format=FORMAT, datefmt="%d/%m/%Y %I:%M:%
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logging.info("enter lifespan")
+    
     await redis_manager.connect()
     FastAPICache.init(RedisBackend(redis_manager.redis), prefix="fastapi-cache")
     yield
@@ -40,6 +41,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(description="Manga Reader", lifespan=lifespan)
 
+Path("./media").mkdir(parents=True, exist_ok=True)
 app.mount("/media", StaticFiles(directory="media"), name="media")
 
 app.include_router(auth_router)
