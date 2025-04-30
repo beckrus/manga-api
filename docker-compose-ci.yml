@@ -3,8 +3,6 @@ services:
     container_name: "manga_backend"
     image: manga-api-image:latest
     restart: unless-stopped
-    env_file:
-      - .env
     ports:
       - 8000:8000
     volumes:
