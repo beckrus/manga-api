@@ -8,6 +8,7 @@ from src.exceptions import (
     ObjectNotFoundException,
 )
 from src.services.base import BaseService
+from utils.check_file import rm_file
 
 
 class PagesService(BaseService):
@@ -36,20 +37,24 @@ class PagesService(BaseService):
         except ObjectDuplicateException as e:
             raise PageDuplicateException from e
 
-    async def modify_page(self, chapter_id: int, data: PagePatchDTO):
+    async def modify_page(self, page_id: int, data: PagePatchDTO):
         try:
-            page = await self.db.pages.get_one_or_none(chapter_id=chapter_id, number=data.number)
+            page = await self.db.pages.get_one_or_none(id=page_id)
             if page:
-                result = await self.db.pages.edit(page["id"], data=data, exclude_unset=True)
+                result = await self.db.pages.edit(page.id, data=data, exclude_unset=True)
                 await self.db.commit()
                 return result
             else:
                 raise PageNotFoundException
         except ObjectNotFoundException as e:
             raise PageNotFoundException from e
+        except ObjectDuplicateException as e:
+            raise PageDuplicateException from e
 
     async def delete_page(self, page_id: int):
         try:
+            page = await self.db.pages.get_one_by_id(id=page_id)
+            rm_file(page.url)
             await self.db.pages.delete(id=page_id)
             await self.db.commit()
         except ObjectNotFoundException as e:

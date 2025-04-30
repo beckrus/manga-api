@@ -1,6 +1,14 @@
 from fastapi import APIRouter, Depends
 from fastapi_cache.decorator import cache
 
+from src.exceptions import (
+    ChapterNotFoundException,
+    ChapterNotFoundHTTPException,
+    PageDuplicateException,
+    PageDuplicateHTTPException,
+    PageNotFoundException,
+    PageNotFoundHTTPException,
+)
 from src.services.pages import PagesService
 from src.api.dependencies import DBDep, get_admin_user
 from src.schemas.pages import PageAddDTO, PagePatchDTO
@@ -35,19 +43,35 @@ async def get_page(db: DBDep, chapter_id: int):
     """,
 )
 async def get_page_by_id(db: DBDep, chapter_id: int, page_id: int):
-    return await PagesService(db).get_page_by_id(chapter_id, page_id)
+    try:
+        return await PagesService(db).get_page_by_id(chapter_id, page_id)
+    except PageNotFoundException:
+        raise PageNotFoundHTTPException
 
 
 @router.post("", dependencies=[Depends(get_admin_user)])
 async def add_page(db: DBDep, chapter_id: int, data: PageAddDTO, user_id: int = 1):
-    return await PagesService(db).add_page(chapter_id, user_id, data.number, data.url)
+    try:
+        return await PagesService(db).add_page(chapter_id, user_id, data.number, data.url)
+    except ChapterNotFoundException:
+        raise ChapterNotFoundHTTPException
+    except PageDuplicateException:
+        raise PageDuplicateHTTPException
 
 
 @router.patch("/{page_id}", dependencies=[Depends(get_admin_user)])
-async def modify_page(db: DBDep, chapter_id: int, data: PagePatchDTO):
-    return await PagesService(db).modify_page(chapter_id, data)
+async def modify_page(db: DBDep, page_id: int, data: PagePatchDTO):
+    try:
+        return await PagesService(db).modify_page(page_id, data)
+    except PageNotFoundException:
+        raise PageNotFoundHTTPException
+    except PageDuplicateException:
+        raise PageDuplicateHTTPException
 
 
 @router.delete("/{page_id}", dependencies=[Depends(get_admin_user)])
 async def delete_page(db: DBDep, page_id: int):
-    return await PagesService(db).delete_page(page_id)
+    try:
+        return await PagesService(db).delete_page(page_id)
+    except PageNotFoundException:
+        raise PageNotFoundHTTPException

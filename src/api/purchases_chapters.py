@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Form
 
 from src.services.purchases_chapters import PurchasesChaptersService
 from src.exceptions import (
@@ -27,7 +27,7 @@ async def get_my_purchases(db: DBDep, user_id: UserIdDep):
 
 
 @router.post("", status_code=204)
-async def purchase_chapter(db: DBDep, user_id: UserIdDep, chapter_id: int):
+async def purchase_chapter(db: DBDep, user_id: UserIdDep, chapter_id: int = Form()):
     try:
         return await PurchasesChaptersService(db).purchase_chapter(user_id, chapter_id)
     except ChapterIsFreeException:

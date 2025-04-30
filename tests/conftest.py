@@ -3,6 +3,7 @@ from unittest import mock
 from unittest.mock import AsyncMock, MagicMock
 import pytest
 
+
 # patch fastapi_chache
 mock.patch("fastapi_cache.decorator.cache", lambda *args, **kwargs: lambda f: f).start()
 
@@ -21,6 +22,7 @@ from httpx import ASGITransport, AsyncClient
 from src.api.dependencies import get_db, get_db_manager_null_pull
 from src.schemas.authors import AuthorAddDTO
 from src.schemas.manga import MangaDBAddDTO
+from src.schemas.chapters import ChapterDBAddDTO
 from src.database import engine_null_pool, Base
 from src.models import *  # noqa: F403
 from src.config import settings
@@ -138,3 +140,15 @@ async def add_manga(add_user):
         await db.commit()
         manga_in_db = await db.manga.get_all()
         assert len(manga_data) == len(manga_in_db)
+
+
+@pytest.fixture(autouse=True, scope="session")
+async def add_chapters(add_user, add_manga):
+    async with get_db_manager_null_pull() as db:
+        with open("tests/mock_chapters.json", "r") as f:
+            data = json.loads(f.read())
+            chapters_data = [ChapterDBAddDTO.model_validate(n) for n in data]
+        await db.chapters.add_bulk(chapters_data)
+        await db.commit()
+        chapters_in_db = await db.chapters.get_all()
+        assert len(chapters_data) == len(chapters_in_db)

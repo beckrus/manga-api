@@ -6,6 +6,7 @@ from src.exceptions import (
     FKObjectNotFoundException,
     NotEnoughtCoinsException,
     ObjectDuplicateException,
+    ObjectNotFoundException,
     PurchasesChapterDuplicateException,
 )
 from src.services.base import BaseService
@@ -35,6 +36,8 @@ class PurchasesChaptersService(BaseService):
             user_data = UserPatchCoinsDTO.model_validate({"coin_balance": new_coin_balance})
             await self.db.users.edit(user_id, user_data, exclude_unset=True)
             await self.db.commit()
+        except ObjectNotFoundException as e:
+            raise ChapterNotFoundException from e
         except ObjectDuplicateException as e:
             raise PurchasesChapterDuplicateException from e
         except FKObjectNotFoundException as e:

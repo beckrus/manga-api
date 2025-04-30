@@ -31,7 +31,13 @@ async def test_chapters_flow_auth(
     res_get_ch = await ac_auth.get(f"/manga/{manga_id}/chapters/{post_data['id']}")
     assert res_get_ch.status_code == 200
     data_get_ch = res_get_ch.json()
-    assert data_get_ch["id"] == manga_id
+
+    res_get_manga = await ac_auth.get(f"/manga/{manga_id}")
+    manga = res_get_manga.json()
+    assert manga["count_views"] > 0
+    assert manga["current_reading_chapter"] == post_data["id"]
+
+    assert data_get_ch["id"] == post_data["id"]
     assert data_get_ch["number"] == data["number"]
     res_get_pages = await ac_auth.get(f"/manga/{manga_id}/chapters/{post_data['id']}/pages")
     data_get_pages = res_get_pages.json()

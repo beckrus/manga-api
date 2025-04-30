@@ -21,4 +21,5 @@ class PageForChapterDTO(BaseModel):
     url: str
 
 
-class PageResponseDTO(PageDBAddDTO): ...
+class PageResponseDTO(PageDBAddDTO):
+    id: int

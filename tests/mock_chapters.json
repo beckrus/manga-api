@@ -1,0 +1,4 @@
+[
+    {"number": 10, "manga_id":1, "price": 0, "is_premium": false, "created_by":1},
+    {"number": 11, "manga_id":1, "price": 10, "is_premium": true, "created_by":1}
+]

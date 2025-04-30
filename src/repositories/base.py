@@ -114,6 +114,14 @@ class BaseRepository(Generic[DBModelType, SchemaType]):
             return self.mapper.map_to_domain_entity(result.scalars().one())
         except NoResultFound as e:
             raise ObjectNotFoundException from e
+        except IntegrityError as e:
+            logging.error(
+                f"Can't modify data in DB, error type: {type(e.orig.__cause__)=}, input {data=}"
+            )
+            if e.orig.sqlstate == "23505":
+                raise ObjectDuplicateException from e
+            else:
+                raise e
 
     async def delete(self, id) -> None:
         stmt = delete(self.model).filter_by(id=id)
