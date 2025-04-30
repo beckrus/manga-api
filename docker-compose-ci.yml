@@ -50,3 +50,4 @@ services:
 networks:
    manga_net:
     name: manga_net
+    external: true
