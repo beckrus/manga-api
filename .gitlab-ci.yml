@@ -1,0 +1,54 @@
+stages:
+  - build
+  - lint_format
+  - migrations
+  - test
+  - deploy
+
+
+.base_ruff:
+  stage: lint_format
+  interruptible: true
+  image:
+    name: ghcr.io/astral-sh/ruff:0.11.6-alpine
+  before_script:
+    - ls -lah
+    - ruff --version
+
+Ruff Check:
+  extends: .base_ruff
+  script:
+    - ruff check --output-format=gitlab
+
+Ruff Format:
+  extends: .base_ruff
+  script:
+    - ruff format --check
+
+
+Migrations:
+  stage: migrations
+  script: 
+    - docker run --rm --network manga_net manga-api-image alembic upgrade head
+
+
+Tests:
+  stage: test
+  script:
+    - docker run --rm --network manga_net manga-api-image pytest -s -v
+
+
+Build Image:
+  stage: build
+  before_script: 
+    - cp ${PROD_ENV} .env
+    - cp ${TEST_ENV} .env-test
+    - ls -lah
+  script:
+    - docker build -t manga-api-image .
+
+
+Deploy App:
+  stage: deploy
+  script:
+    - docker compose -f docker-compose-ci.yml up -d

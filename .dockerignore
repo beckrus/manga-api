@@ -1,0 +1,14 @@
+celerybeat-schedule
+venv
+.idea
+.mypy_cache
+__pycache__
+.venv_linux
+postgres_data
+cache
+.ruff_cache
+.pytest_cache
+*.pyc
+.git
+media_test
+media

@@ -1,0 +1,54 @@
+services:
+  backend:
+    container_name: "manga_backend"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - 8000:8000
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    networks:
+       - manga_net
+
+  db:
+    image: postgres
+    container_name: 'manga_db'
+    restart: always
+    shm_size: 128mb
+    ports:
+      - 5431:5432
+    volumes:
+      - ./postgres_data:/data/postgres
+    environment:
+      POSTGRES_USER: manga
+      POSTGRES_PASSWORD: manga
+      POSTGRES_DB: manga
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d postgres" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+       - manga_net
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: 'manga_redis'
+    restart: always
+    volumes: 
+      - ./cache:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+    networks:
+       - manga_net
+
+networks:
+   manga_net:
+    name: manga_net
