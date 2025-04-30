@@ -42,7 +42,7 @@ Build Image:
   stage: build
   before_script: 
     - cp ${PROD_ENV} .env
-    - cp ${TEST_ENV} .env-test
+    - cp ${TEST_ENV} .env_test
     - ls -lah
   script:
     - docker build -t manga-api-image .
