@@ -21,10 +21,10 @@ class Settings(BaseSettings):
 
     SAVE_IMG_FOLDER: str
 
-    SMTP_HOST: str
-    SMTP_PORT: str
-    SMTP_USER: str
-    SMTP_PASS: str
+    SMTP_HOST: str | None = None
+    SMTP_PORT: str | None = None
+    SMTP_USER: str | None = None
+    SMTP_PASS: str | None = None
 
     SITE_URL: str = "http://127.0.0.1:8000"
 

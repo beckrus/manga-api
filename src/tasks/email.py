@@ -8,8 +8,16 @@ from src.config import settings
 from src.tasks.celery import celery_app
 
 
+def check_smtp_settings() -> bool:
+    if all(settings.SMTP_USER, settings.SMTP_PASS, settings.SMTP_USER, settings.SMTP_PASS):
+        return True
+    return False
+
+
 @celery_app.task(bind=True, retry_kwargs={"max_retries": 5})
 def send_welcome_email_task(self, user: dict):
+    if not check_smtp_settings:
+        return "❌ SMTP is not configured"
     try:
         logging.info("✅ Preparing Welcome email template...")
         env = Environment(
