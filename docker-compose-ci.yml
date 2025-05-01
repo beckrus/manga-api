@@ -47,6 +47,35 @@ services:
     networks:
        - manga_net
 
+  celery_worker:
+    container_name: "manga_celery_worker"
+    image: manga-api-image:latest
+    command: "celery --app=src.tasks.celery:celery_app worker -l INFO"
+    depends_on:
+      - backend
+    networks:
+       - manga_net
+
+  celery_beat:
+    container_name: "manga_celery_beat"
+    image: manga-api-image:latest
+    command: "celery --app=src.tasks.celery:celery_app beat -l INFO"
+    depends_on:
+      - backend
+    networks:
+       - manga_net
+
+  flower:
+    container_name: "manga_flower"
+    image: manga-api-image:latest
+    command: "celery --app=src.tasks.celery:celery_app flower --port=5555"
+    ports:
+      - 5555:5555
+    depends_on:
+      - backend
+    networks:
+       - manga_net
+
 networks:
    manga_net:
     name: manga_net

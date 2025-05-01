@@ -51,6 +51,48 @@ services:
     networks:
        - manga_net
 
+  celery_worker:
+    container_name: "manga_celery_worker"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: celery_worker
+    command: "celery --app=src.tasks.celery:celery_app worker -l INFO"
+    env_file:
+      - .env
+    depends_on:
+      - backend
+    networks:
+       - manga_net
+
+  celery_beat:
+    container_name: "manga_celery_beat"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: "celery --app=src.tasks.celery:celery_app beat -l INFO"
+    env_file:
+      - .env
+    depends_on:
+      - backend
+    networks:
+       - manga_net
+
+  flower:
+    container_name: "manga_flower"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: "celery --app=src.tasks.celery:celery_app flower --port=5555"
+    env_file:
+      - .env
+    ports:
+      - 5555:5555
+    depends_on:
+      - backend
+    networks:
+       - manga_net
+
 networks:
    manga_net:
     name: manga_net

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body style="font-family: Arial, sans-serif; background-color: #f7f9fc; margin: 0; padding: 0;">
+    <div class="container" style="max-width: 600px; margin: 40px auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+      <h2 class="header" style="text-align: center; color: #4a90e2; font-size: 24px; margin-bottom: 35px;">Добро пожаловать в {{ site_name }}!</h2>
+      <div class="content" style=" font-size: 16px; color: #333333; line-height: 1.6;">
+        <p>Привет, {{ username }}!</p>
+        <p>Спасибо за регистрацию в <strong>{{ site_name }}</strong> — месте, где оживает манга.</p>
+        <p>Начни исследование прямо сейчас:</p>
+        <a href="{{ site_url }}" class="button" style="display: block; margin: 0 auto; margin-top: 25px; background-color: #4a90e2; color: white !important; padding: 12px 24px; text-decoration: none; text-align: center; border-radius: 6px; font-weight: bold; width: max-content; margin-bottom: 25px;">Перейти на сайт</a>
+        <p>С уважением,<br>Команда {{ site_name }}</p>
+      </div>
+      <div class="footer" style="margin-top: 40px; font-size: 12px; color: #888888; text-align: center;">
+        Вы получили это письмо, потому что зарегистрировались на {{ site_name }}.<br>
+        Пожалуйста, не отвечайте на это сообщение.
+      </div>
+    </div>
+  </body>
+</html>

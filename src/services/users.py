@@ -8,6 +8,7 @@ from src.exceptions import (
     ObjectNotFoundException,
 )
 from src.services.base import BaseService
+from src.tasks.email import send_welcome_email_task
 
 
 class UsersService(BaseService):
@@ -38,6 +39,7 @@ class UsersService(BaseService):
                 user.is_admin = True
             result = await self.db.users.add(user)
             await self.db.commit()
+            send_welcome_email_task.delay(user.model_dump())
             return result
         except ObjectDuplicateException as e:
             raise UserDuplicateException from e

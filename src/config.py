@@ -21,9 +21,22 @@ class Settings(BaseSettings):
 
     SAVE_IMG_FOLDER: str
 
+    SMTP_HOST: str
+    SMTP_PORT: str
+    SMTP_USER: str
+    SMTP_PASS: str
+
+    SITE_URL: str = "http://127.0.0.1:8000"
+
+    SITE_NAME: str = "Manga-local"
+
     @property
     def DB_URL(self):
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+
+    @property
+    def REDIS_URL(self):
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}"
 
     model_config = SettingsConfigDict(env_file=".env")
 

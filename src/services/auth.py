@@ -1,9 +1,11 @@
 from src.services.token import TokenService
 from src.schemas.users import UserAddDTO, UserDBAddDTO, UserLoginDTO, UserTokens
 from src.exceptions import (
+    ObjectNotFoundException,
     UserAuthException,
     UserDuplicateException,
     ObjectDuplicateException,
+    UserNotFoundException,
 )
 from src.services.base import BaseService
 
@@ -22,7 +24,10 @@ class AuthService(BaseService):
             raise UserDuplicateException from e
 
     async def authenticate_user(self, data: UserLoginDTO) -> str:
-        user = await self.db.users.get_one_by_name_or_email(username=data.username)
+        try:
+            user = await self.db.users.get_one_by_name_or_email(username=data.username)
+        except ObjectNotFoundException as e:
+            raise UserNotFoundException from e
         if user and TokenService.verify_password(data.password, user.password_hash):
             access_token = TokenService.create_access_token(
                 {"user_id": user.id, "username": user.username}

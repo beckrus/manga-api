@@ -66,7 +66,7 @@ async def register(db: DBDep, data: UserAddDTO):
 async def login(db: DBDep, data: Annotated[UserLoginDTO, Form()], response: Response):
     try:
         tokens = await AuthService(db).authenticate_user(data)
-    except UserAuthException:
+    except (UserAuthException, UserNotFoundException):
         raise UserAuthHTTPException
     response.set_cookie(
         key="access_token",
