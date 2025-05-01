@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Form
+from fastapi import APIRouter
 
 from src.exceptions import (
     FavoriteDuplicateException,
@@ -19,8 +19,8 @@ async def get_favorites(db: DBDep, user_id: UserIdDep):
     return await FavoritesService(db).get_favorites(user_id)
 
 
-@router.post("", status_code=204)
-async def add_favorite(db: DBDep, user_id: UserIdDep, manga_id: int = Form()):
+@router.post("/{manga_id}", status_code=204)
+async def add_favorite(db: DBDep, user_id: UserIdDep, manga_id: int):
     try:
         return await FavoritesService(db).add_to_favorite(manga_id, user_id)
     except FavoriteDuplicateException:
@@ -29,8 +29,8 @@ async def add_favorite(db: DBDep, user_id: UserIdDep, manga_id: int = Form()):
         raise MangaNotFoundHTTPException
 
 
-@router.delete("", status_code=204)
-async def delete_favorite(db: DBDep, user_id: UserIdDep, manga_id: int = Form()):
+@router.delete("/{manga_id}", status_code=204)
+async def delete_favorite(db: DBDep, user_id: UserIdDep, manga_id: int):
     try:
         return await FavoritesService(db).delete_favorite(manga_id, user_id)
     except FavoriteNotFoundException:

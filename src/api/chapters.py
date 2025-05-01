@@ -38,7 +38,7 @@ router = APIRouter(prefix="/manga/{manga_id}/chapters", tags=["Chapters"])
     - **Returns**: A list of chapters belonging to the specified manga.
     """,
 )
-async def get_chapters(db: DBDep, manga_id: int):
+async def get_chapters(db: DBDep, manga_id: int) -> list[ChapterResponseDTO]:
     return await ChaptersService(db).get_chapters(manga_id=manga_id)
 
 
@@ -58,6 +58,31 @@ async def get_chapter_by_id(db: DBDep, chapter_id: int, tracking_info=Depends(ge
         chapter = await ChaptersService(db).get_chapter_by_id(chapter_id)
         await ViewsService(db).increase_count_views(chapter.manga_id, tracking_info)
         await ReadProgresService(db).add_progress(chapter.manga_id, chapter_id, tracking_info)
+        return chapter
+    except ChapterNotFoundException:
+        raise ChapterNotFoundHTTPException
+
+
+@cache(expire=1)
+@router.get(
+    "/{chapter_id}/next",
+    description="""
+    Retrieve a specific chapter by its ID.
+
+    - **chapter_id**: The ID of the chapter to retrieve.
+    - **Returns**: The details of the chapter with the specified ID.
+    - **Error**: Raises a 404 error if the chapter with the specified ID is not found.
+    """,
+)
+async def get_next_chapter(
+    db: DBDep, manga_id: int, chapter_id: int, tracking_info=Depends(get_user_or_ip)
+):
+    try:
+        chapter = await ChaptersService(db).get_next_chapter(
+            manga_id=manga_id, chapter_id=chapter_id
+        )
+        await ViewsService(db).increase_count_views(chapter.manga_id, tracking_info)
+        await ReadProgresService(db).add_progress(chapter.manga_id, chapter.id, tracking_info)
         return chapter
     except ChapterNotFoundException:
         raise ChapterNotFoundHTTPException

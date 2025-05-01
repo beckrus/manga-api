@@ -18,8 +18,7 @@ async def test_favorites_flow_auth(
     assert len(fav_list) == 0
 
     res_post = await ac_auth.post(
-        "/favorites",
-        data={"manga_id": manga_list[0]["id"]},
+        f"/favorites/{manga_list[0]['id']}",
     )
 
     assert res_post.status_code == 204
@@ -30,11 +29,7 @@ async def test_favorites_flow_auth(
     assert len(fav_list) == 1
     assert fav_list[0]["id"] == manga_list[0]["id"]
 
-    res_del = await ac_auth.request(
-        "DELETE",
-        "/favorites",
-        data={"manga_id": manga_list[0]["id"]},
-    )
+    res_del = await ac_auth.request("DELETE", f"/favorites/{manga_list[0]['id']}")
     assert res_del.status_code == 204
     res_get_fav_3 = await ac_auth.get("/favorites")
     assert res_get_fav_3.status_code == 200
@@ -56,9 +51,6 @@ async def test_favorites_flow_wo_auth(
     )
     assert res_get_fav.status_code == 401
 
-    res_post = await ac.post(
-        "/favorites",
-        data={"manga_id": manga_list[0]["id"]},
-    )
+    res_post = await ac.post(f"/favorites/{manga_list[0]['id']}")
 
     assert res_post.status_code == 401

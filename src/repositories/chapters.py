@@ -8,8 +8,11 @@ class ChaptersRepository(BaseRepository):
     model = ChaptersOrm
     mapper = ChaptersMapper
 
-    async def get_page_by_manga_and_number(self, chapter_number, manga_id):
-        chapter = await self.get_one_or_none(manga_id=manga_id, number=chapter_number)
-        if chapter:
-            return chapter
+    async def get_next_chapter(self, chapter_id: int, manga_id: int):
+        chapter = await self.get_one_or_none(manga_id=manga_id, id=chapter_id)
+        if not chapter:
+            raise ChapterNotFoundException
+        next_chapter = await self.get_one_or_none(manga_id=manga_id, number=chapter.number + 1)
+        if next_chapter:
+            return next_chapter
         raise ChapterNotFoundException

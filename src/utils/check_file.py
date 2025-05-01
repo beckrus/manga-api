@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 import shutil
 import uuid
@@ -9,8 +10,11 @@ from src.config import settings
 from src.exceptions import (
     BadFileExtException,
     BadFileExtInArchiveException,
+    BadImageFileExtException,
     PageFileImageNameException,
 )
+
+ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
 
 
 def check_files_inside(file: str) -> None:
@@ -18,8 +22,7 @@ def check_files_inside(file: str) -> None:
     files_in_zip = zip.namelist()
     for n in files_in_zip:
         file_suffix = Path(n).suffix
-        valid_extensions = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
-        if file_suffix not in valid_extensions:
+        if file_suffix not in ALLOWED_EXTENSIONS:
             raise BadFileExtInArchiveException
 
 
@@ -52,7 +55,8 @@ def rm_file(file_path: str) -> None:
 
 def rm_chapter_files(manga_id: int, chapter_id: int) -> None:
     path_to_rm = Path(f"./{settings.SAVE_IMG_FOLDER}/manga/{manga_id}/chapters/{chapter_id}/")
-    shutil.rmtree(path_to_rm)
+    if os.path.exists(path_to_rm) and os.path.isdir(path_to_rm):
+        shutil.rmtree(path_to_rm)
 
 
 def save_page_files(manga_id: int, chapter_id: int, file_path: str) -> list[str]:
@@ -67,6 +71,20 @@ def save_page_files(manga_id: int, chapter_id: int, file_path: str) -> list[str]
     images = [url_path + file for file in files_in_zip]
     images_sorted = sorted(images, key=get_number)
     return images_sorted
+
+
+def save_manga_poster(manga_id: int, file: UploadFile) -> str:
+    file_ext = Path(file.filename).suffix
+    print(file_ext)
+    if file_ext not in ALLOWED_EXTENSIONS:
+        raise BadImageFileExtException
+    save_path = f"./{settings.SAVE_IMG_FOLDER}/manga/{manga_id}/"
+    Path(save_path).mkdir(parents=True, exist_ok=True)
+    saved_file = f"{save_path}poster{file_ext}"
+    url_path = saved_file[1:]
+    with open(saved_file, "wb+") as file_object:
+        shutil.copyfileobj(file.file, file_object)
+    return url_path
 
 
 def get_number(text: str):

@@ -1,9 +1,12 @@
-from fastapi import APIRouter, Depends
+from typing import Annotated
+from fastapi import APIRouter, Depends, File, UploadFile
 from fastapi_cache.decorator import cache
 
 from src.exceptions import (
     AuthorNotFoundException,
     AuthorNotFoundHTTPException,
+    BadImageFileExtException,
+    BadImageFileExtHTTPException,
     MangaDuplicateException,
     MangaDuplicateHTTPException,
     MangaNotFoundException,
@@ -14,7 +17,7 @@ from src.api.dependencies import (
     DBDep,
     MangaFilterDep,
     PaginationDep,
-    UserIdDep,
+    UserIdAdminDep,
     get_admin_user,
     get_user_or_ip,
 )
@@ -62,11 +65,23 @@ async def get_manga_by_id(db: DBDep, manga_id: int, tracking_info=Depends(get_us
 
 
 @router.post("")
-async def add_manga(db: DBDep, data: MangaAddDTO | list[MangaAddDTO], user_id: UserIdDep):
+async def add_manga(db: DBDep, data: MangaAddDTO | list[MangaAddDTO], user_id: UserIdAdminDep):
     try:
         return await MangaService(db).add_manga(user_id, data)
     except AuthorNotFoundException:
         raise AuthorNotFoundHTTPException
+    except MangaDuplicateException:
+        raise MangaDuplicateHTTPException
+
+
+@router.post("/{manga_id}/poster")
+async def add_manga_poster(
+    db: DBDep, manga_id: int, user_id: UserIdAdminDep, image: Annotated[UploadFile, File()]
+):
+    try:
+        return await MangaService(db).add_manga_poster(manga_id, image)
+    except BadImageFileExtException:
+        raise BadImageFileExtHTTPException
     except MangaDuplicateException:
         raise MangaDuplicateHTTPException
 

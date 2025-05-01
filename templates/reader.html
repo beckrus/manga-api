@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Чтение манги</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    img {
+      max-width: 100%;
+      margin: 0 auto;
+      display: block;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+  <div id="reader" class="max-w-3xl mx-auto py-4 space-y-4"></div>
+
+  <div id="end-message" class="max-w-3xl mx-auto py-8 text-center hidden">
+    <p class="text-lg font-semibold mb-4">Это последняя глава</p>
+    <button
+      id="add-favorite"
+      class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
+    >
+      Добавить мангу в избранное
+    </button>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const mangaId = {{ manga_id }};
+    var chapterId = {{ chapter_id }};
+
+    let isLoading = false;
+    let isLastPage = false;
+
+    async function loadPages() {
+      if (isLoading || isLastPage) return;
+
+      isLoading = true;
+
+      try {
+        const res = await fetch(`/manga/${mangaId}/chapters/${chapterId}/pages`);
+        if (!res.ok) throw new Error("Не удалось загрузить страницы");
+
+        const data = await res.json();
+        currentChapterNumber = data.number
+        const container = document.getElementById("reader");
+        data.forEach(page => {
+          const img = document.createElement("img");
+          img.src = page.url;
+          img.alt = `Страница ${page.number}`;
+          container.appendChild(img);
+        });
+        const res_next = await fetch(`/manga/${mangaId}/chapters/${chapterId}/next`);
+        const res_next_data = await res_next.json();
+        chapterId = res_next_data.id
+      } catch (err) {
+        console.error(err);
+      } finally {
+        isLoading = false;
+      }
+    }
+
+    // Загрузка первых страниц
+    loadPages();
+    console.log(chapterId)
+    // Infinity scroll
+    window.addEventListener("scroll", () => {
+      const scrollBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
+      if (scrollBottom && chapterId) {
+        loadPages()
+      } else if (scrollBottom && !chapterId) {
+        const message = document.getElementById("end-message");
+        message.classList.remove("hidden");
+      }
+    });
+
+    document.getElementById("add-favorite").addEventListener("click", async () => {
+      try {
+        const res = await fetch(`/favorites/${mangaId}`, {
+          method: "POST",
+        });
+        if (res.ok) {
+          alert("Манга добавлена в избранное!");
+        } else if (res.status == 401){
+            alert("Войдите что бы добавить в избранное.");
+        } else if (res.status == 409){
+            alert("Манга уже была добавлена в избранное!");
+        }else
+        {
+          alert("Не удалось добавить в избранное.");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Ошибка при добавлении.");
+      }
+    });
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Манга</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script defer>
+
+    const mangaId = {{ manga_id }};
+
+    async function loadManga() {
+      try {
+        const res = await fetch(`/manga/${mangaId}`);
+        const manga = await res.json();
+
+        document.getElementById("title").textContent = manga.main_name;
+        document.getElementById("image").src = manga.image;
+        document.getElementById("image").alt = manga.main_name;
+
+        document.getElementById("details").innerHTML = `
+          <p><strong>Название:</strong> ${manga.main_name} | ${manga.secondary_name}</p>
+          <p><strong>Описание:</strong> ${manga.description}</p>
+          <p><strong>Просмотры:</strong> ${manga.count_views}</p>
+          <p><strong>Заклаки:</strong> ${manga.count_bookmarks}</p>
+      ${manga.current_reading_chapter?
+      `<a href="/web/reader?manga_id=${mangaId}&chapter_id=${manga.current_reading_chapter}" class="mt-8 inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow">Продолжить</a>`
+      :''
+      }
+        `;
+      } catch (e) {
+        console.error(e);
+        document.getElementById("manga-container").innerHTML = "Ошибка загрузки манги";
+      }
+    }
+
+    async function loadChapters() {
+    try {
+      const res = await fetch(`/manga/${mangaId}/chapters`);
+      const chapters = await res.json();
+      const list = document.getElementById("chapter-list");
+      chapters.forEach(ch => {
+        const li = document.createElement("li");
+        li.className = "flex justify-between items-center border rounded-lg px-4 py-3 shadow-sm bg-white hover:shadow-md transition";
+
+        li.innerHTML = `
+          <div class="flex items-center gap-3 w-100">
+            <a href="/web/reader?manga_id=${mangaId}&chapter_id=${ch.id}" class="font-semibold text-blue-600 hover:underline">Глава ${ch.number}</a>
+            ${ch.is_premium ? `
+              <span title="Премиум">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" display="inline-block" viewBox="0 0 20 20" stroke-width="1.5" fill="currentColor" stroke="none" class="text-muted-foreground"><path d="M14.2307 6.94175V5.90008C14.2307 3.65008 13.6891 0.666748 8.9974 0.666748C4.30573 0.666748 3.76406 3.65008 3.76406 5.90008V6.94175C1.43073 7.23341 0.664062 8.41675 0.664062 11.3251V12.8751C0.664062 16.2917 1.70573 17.3334 5.1224 17.3334H12.8724C16.2891 17.3334 17.3307 16.2917 17.3307 12.8751V11.3251C17.3307 8.41675 16.5641 7.23341 14.2307 6.94175ZM8.9974 14.6167C7.60573 14.6167 6.48073 13.4834 6.48073 12.1001C6.48073 10.7084 7.61406 9.58341 8.9974 9.58341C10.3807 9.58341 11.5141 10.7167 11.5141 12.1001C11.5141 13.4917 10.3891 14.6167 8.9974 14.6167ZM5.1224 6.86675C5.05573 6.86675 4.9974 6.86675 4.93073 6.86675V5.90008C4.93073 3.45841 5.6224 1.83341 8.9974 1.83341C12.3724 1.83341 13.0641 3.45841 13.0641 5.90008V6.87508C12.9974 6.87508 12.9391 6.87508 12.8724 6.87508H5.1224V6.86675Z"></path></svg>              </span>
+            ` : ''}
+          </div>
+        `;
+        list.appendChild(li);
+      });
+    } catch (e) {
+        console.error(e);
+        document.getElementById("chapter-list").innerHTML = "<li>Ошибка загрузки глав.</li>";
+        }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      loadManga();
+      loadChapters();
+    });
+  </script>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      background-color: #f9fafb;
+    }
+    img {
+      max-width: 250px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .container {
+      display: flex;
+      gap: 40px;
+    }
+    .chapters {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="title" class="text-2xl font-bold mb-4">Загрузка...</h1>
+  <div class="container">
+    <img id="image" src="" alt="Обложка">
+    <div id="details"></div>
+  </div>
+
+  <div class="chapters">
+    <h2 class="text-xl font-semibold mt-6 mb-3">Главы</h2>
+    <ul id="chapter-list" class="list-disc pl-5"></ul>
+  </div>
+</body>
+</html>

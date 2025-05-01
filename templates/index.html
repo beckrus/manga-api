@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Каталог манги</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .manga-tile:hover {
+            transform: scale(1.03);
+            transition: transform 0.2s;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+    <div class="container mx-auto px-4 py-6">
+        <h1 class="text-3xl font-bold mb-6">Каталог</h1>
+
+        <!-- Поиск -->
+        <input
+            type="text"
+            id="search-input"
+            placeholder="Поиск по названию (Enter для поиска)"
+            class="w-full px-4 py-2 border border-gray-300 rounded mb-6"
+        >
+
+        <!-- Список манги -->
+        <div id="manga-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
+
+        <!-- Прелоадер -->
+        <div id="loader" class="text-center py-4 hidden">Загрузка...</div>
+    </div>
+
+    <script>
+        const apiUrl = '/manga'; // замените на реальный API url
+        let page = 1;
+        const perPage = 20;
+        let isLoading = false;
+        let hasMore = true;
+        let searchQuery = '';
+
+        const mangaList = document.getElementById('manga-list');
+        const loader = document.getElementById('loader');
+        const searchInput = document.getElementById('search-input');
+
+        async function loadManga(reset = false) {
+            if (isLoading || !hasMore) return;
+            isLoading = true;
+            loader.classList.remove('hidden');
+
+            if (reset) {
+                page = 1;
+                mangaList.innerHTML = '';
+                hasMore = true;
+            }
+
+            const url = new URL(apiUrl, window.location.origin);
+            url.searchParams.set('page', page);
+            url.searchParams.set('per_page', perPage);
+            if (searchQuery) url.searchParams.set('name', searchQuery);
+
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data.length < perPage) hasMore = false;
+
+            for (const manga of data) {
+                const tile = document.createElement('a');
+                tile.style = "width:200px;"
+                tile.href = `/web/manga?manga_id=${manga.id}`;
+                tile.className = 'block bg-white rounded shadow manga-tile overflow-hidden';
+                tile.innerHTML = `
+                    <img src="${manga.image}" alt="${manga.main_name}" class="size-full object-cover">
+                    <div class="p-2 text-sm font-semibold">${manga.main_name}</div>
+                `;
+                mangaList.appendChild(tile);
+            }
+
+            page++;
+            isLoading = false;
+            loader.classList.add('hidden');
+        }
+
+        // Загрузка при скролле
+        window.addEventListener('scroll', () => {
+            const bottomReached = window.innerHeight + window.scrollY >= document.body.offsetHeight - 200;
+            if (bottomReached) loadManga();
+        });
+
+        // Поиск
+        searchInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                searchQuery = searchInput.value.trim();
+                hasMore = true;
+                loadManga(true);
+            }
+        });
+        // Начальная загрузка
+        loadManga();
+    </script>
+</body>
+</html>

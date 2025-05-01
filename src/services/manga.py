@@ -1,4 +1,5 @@
-from src.schemas.manga import MangaAddDTO, MangaDBAddDTO, MangaPatchDTO
+from fastapi import UploadFile
+from src.schemas.manga import MangaDBAddDTO, MangaPatchDTO
 from src.api.dependencies import MangaFilterDep, PaginationDep
 from src.exceptions import (
     AuthorNotFoundException,
@@ -7,9 +8,19 @@ from src.exceptions import (
     ObjectNotFoundException,
 )
 from src.services.base import BaseService
+from src.utils.check_file import save_manga_poster
 
 
 class MangaService(BaseService):
+    async def add_manga_poster(self, manga_id: int, file: UploadFile):
+        try:
+            manga = await self.get_manga_by_id(manga_id)
+            file_path = save_manga_poster(manga_id, file)
+            data = MangaPatchDTO.model_validate({"image": file_path})
+            return await self.modify_manga(manga.id, data)
+        except ObjectNotFoundException as e:
+            raise MangaNotFoundException from e
+
     async def get_manga(self, filter: MangaFilterDep, pagination: PaginationDep):
         return await self.db.manga.get_filtered(
             name=filter.name,
@@ -18,13 +29,14 @@ class MangaService(BaseService):
             offset=(pagination.page - 1) * pagination.per_page,
         )
 
-    async def get_manga_by_id(self, manga_id: int, user_id: int | None):
+    async def get_manga_by_id(self, manga_id: int, user_id: int | None = None):
         try:
             return await self.db.manga.get_one_by_id_with_progress(manga_id, user_id)
         except ObjectNotFoundException as e:
             raise MangaNotFoundException from e
 
-    async def add_manga(self, user_id: int, data: MangaAddDTO | list[MangaAddDTO]):
+    async def add_manga(self, user_id: int, data: list[dict]):
+        data
         try:
             if isinstance(data, list):
                 manga = [

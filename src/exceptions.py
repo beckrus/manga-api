@@ -91,6 +91,14 @@ class BadFileExtHTTPException(BaseHTTPException):
     detail = "File must be a .zip archive."
 
 
+class BadImageFileExtException(BaseException):
+    detail = "File does not have one of the allowed extensions"
+
+
+class BadImageFileExtHTTPException(BaseHTTPException):
+    detail = "File does not have one of the allowed extensions. Allowed extensions: .jpg, .jpeg, .png, .webp"
+
+
 class BadFileExtInArchiveException(BaseException):
     detail = "File inside the ZIP archive does not have one of the allowed extensions"
 
