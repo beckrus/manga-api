@@ -2,9 +2,9 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, File, Form, UploadFile
 from fastapi_cache.decorator import cache
 
+from schemas.views import TrackingInfo
 from src.services.read_progress import ReadProgresService
 from src.services.views import ViewsService
-from src.services.pages import PagesService
 from src.exceptions import (
     BadFileExtException,
     BadFileExtHTTPException,
@@ -12,6 +12,8 @@ from src.exceptions import (
     BadFileExtInArchiveHTTPException,
     ChapterDuplicateException,
     ChapterDuplicateHTTPException,
+    ChapterIsNotPurchasedException,
+    ChapterIsNotPurchasedHTTPException,
     ChapterNotFoundException,
     ChapterNotFoundHTTPException,
     MangaNotFoundException,
@@ -22,7 +24,7 @@ from src.exceptions import (
 from src.services.chapters import ChaptersService
 from src.api.dependencies import DBDep, UserIdAdminDep, get_admin_user, get_user_or_ip
 from src.schemas.chapters import ChapterAddDTO, ChapterPatchDTO, ChapterResponseDTO
-from src.utils.check_file import file_inspection, rm_chapter_files, rm_file, save_page_files
+from src.utils.check_file import rm_chapter_files
 
 
 router = APIRouter(prefix="/manga/{manga_id}/chapters", tags=["Chapters"])
@@ -53,14 +55,18 @@ async def get_chapters(db: DBDep, manga_id: int) -> list[ChapterResponseDTO]:
     - **Error**: Raises a 404 error if the chapter with the specified ID is not found.
     """,
 )
-async def get_chapter_by_id(db: DBDep, chapter_id: int, tracking_info=Depends(get_user_or_ip)):
+async def get_chapter_by_id(
+    db: DBDep, chapter_id: int, tracking_info: TrackingInfo = Depends(get_user_or_ip)
+):
     try:
-        chapter = await ChaptersService(db).get_chapter_by_id(chapter_id)
+        chapter = await ChaptersService(db).get_chapter_by_id(chapter_id, tracking_info.user_id)
         await ViewsService(db).increase_count_views(chapter.manga_id, tracking_info)
         await ReadProgresService(db).add_progress(chapter.manga_id, chapter_id, tracking_info)
         return chapter
     except ChapterNotFoundException:
         raise ChapterNotFoundHTTPException
+    except ChapterIsNotPurchasedException:
+        raise ChapterIsNotPurchasedHTTPException
 
 
 @cache(expire=1)
@@ -75,7 +81,7 @@ async def get_chapter_by_id(db: DBDep, chapter_id: int, tracking_info=Depends(ge
     """,
 )
 async def get_next_chapter(
-    db: DBDep, manga_id: int, chapter_id: int, tracking_info=Depends(get_user_or_ip)
+    db: DBDep, manga_id: int, chapter_id: int, tracking_info: TrackingInfo = Depends(get_user_or_ip)
 ):
     try:
         chapter = await ChaptersService(db).get_next_chapter(
@@ -86,6 +92,8 @@ async def get_next_chapter(
         return chapter
     except ChapterNotFoundException:
         raise ChapterNotFoundHTTPException
+    except ChapterIsNotPurchasedException:
+        raise ChapterIsNotPurchasedHTTPException
 
 
 @router.post(
@@ -114,19 +122,9 @@ async def add_chapter(
 ) -> ChapterResponseDTO:
     chapter_data = ChapterAddDTO(number=number, is_premium=is_premium, price=price)
     try:
-        file_path = file_inspection(file)
-
         chapter = await ChaptersService(db).add_chapter(
-            manga_id=manga_id, user_id=user_id, data=chapter_data
+            manga_id=manga_id, user_id=user_id, data=chapter_data, file=file
         )
-
-        chapter_id = chapter.id
-        pages_path = save_page_files(manga_id, chapter_id, file_path)
-        for k, v in enumerate(pages_path):
-            await PagesService(db).add_page(
-                chapter_id=chapter_id, user_id=user_id, number=k + 1, url=v
-            )
-        await db.commit()
         return chapter
     except MangaNotFoundException:
         raise MangaNotFoundHTTPException
@@ -138,8 +136,6 @@ async def add_chapter(
         raise BadFileExtInArchiveHTTPException
     except PageFileImageNameException:
         PageFileImageNameHTTPException
-    finally:
-        rm_file(file_path)
 
 
 @router.patch(

@@ -1,7 +1,10 @@
 from fastapi import APIRouter, Depends
 from fastapi_cache.decorator import cache
 
+from src.schemas.views import TrackingInfo
 from src.exceptions import (
+    ChapterIsNotPurchasedException,
+    ChapterIsNotPurchasedHTTPException,
     ChapterNotFoundException,
     ChapterNotFoundHTTPException,
     PageDuplicateException,
@@ -10,7 +13,7 @@ from src.exceptions import (
     PageNotFoundHTTPException,
 )
 from src.services.pages import PagesService
-from src.api.dependencies import DBDep, get_admin_user
+from src.api.dependencies import DBDep, get_admin_user, get_user_or_ip
 from src.schemas.pages import PageAddDTO, PagePatchDTO
 
 
@@ -27,8 +30,15 @@ router = APIRouter(prefix="/manga/{manga_id}/chapters/{chapter_id}/pages", tags=
     - **Returns**: A list of pages belonging to the specified chapter.
     """,
 )
-async def get_page(db: DBDep, chapter_id: int):
-    return await PagesService(db).get_pages(chapter_id)
+async def get_page(
+    db: DBDep, chapter_id: int, tracking_info: TrackingInfo = Depends(get_user_or_ip)
+):
+    try:
+        return await PagesService(db).get_pages(chapter_id, tracking_info.user_id)
+    except ChapterIsNotPurchasedException:
+        raise ChapterIsNotPurchasedHTTPException
+    except ChapterNotFoundException:
+        raise ChapterNotFoundHTTPException
 
 
 @cache(expire=1)

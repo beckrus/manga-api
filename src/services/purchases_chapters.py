@@ -1,5 +1,5 @@
 from src.schemas.users import UserPatchCoinsDTO
-from src.schemas.purchases_chapters import PurchasesChaptersDBAddDTO
+from src.schemas.purchases_chapters import PurchasesChaptersDBAddDTO, PurchasesChaptersResponseDTO
 from src.exceptions import (
     ChapterIsFreeException,
     ChapterNotFoundException,
@@ -13,11 +13,17 @@ from src.services.base import BaseService
 
 
 class PurchasesChaptersService(BaseService):
-    async def all_purchases(self):
+    async def all_purchases(self) -> list[PurchasesChaptersResponseDTO]:
         return await self.db.purchases_chapters.get_all()
 
-    async def my_purchases(self, user_id: int) -> None:
+    async def my_purchases(self, user_id: int) -> list[PurchasesChaptersResponseDTO]:
         return await self.db.purchases_chapters.get_filtered(user_id=user_id)
+
+    async def is_purchased(self, user_id: int, chapter_id: int) -> bool:
+        can_read = await self.db.purchases_chapters.get_filtered(
+            user_id=user_id, chapter_id=chapter_id
+        )
+        return True if can_read else False
 
     async def purchase_chapter(self, user_id: int, chapter_id: int) -> None:
         try:

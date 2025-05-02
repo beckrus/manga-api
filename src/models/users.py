@@ -25,6 +25,6 @@ class UserOrm(Base):
 
     coin_balance: Mapped[int] = mapped_column(default=100)
 
-    favorite_books: Mapped[list["MangaOrm"]] = relationship(
+    favorite_manga: Mapped[list["MangaOrm"]] = relationship(
         back_populates="favorited_by", secondary="favorite_manga"
     )

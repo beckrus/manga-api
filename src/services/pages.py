@@ -1,5 +1,7 @@
+from src.services.purchases_chapters import PurchasesChaptersService
 from src.schemas.pages import PageDBAddDTO, PagePatchDTO
 from src.exceptions import (
+    ChapterIsNotPurchasedException,
     ChapterNotFoundException,
     PageDuplicateException,
     PageNotFoundException,
@@ -8,11 +10,24 @@ from src.exceptions import (
     ObjectNotFoundException,
 )
 from src.services.base import BaseService
-from utils.check_file import rm_file
+from src.utils.check_file import rm_file
 
 
 class PagesService(BaseService):
-    async def get_pages(self, chapter_id: int):
+    async def get_pages(self, chapter_id: int, user_id: int | None = None):
+        try:
+            chapter = await self.db.chapters.get_one_by_id(chapter_id)
+        except ObjectNotFoundException as e:
+            raise ChapterNotFoundException from e
+        if chapter.is_premium:
+            if user_id:
+                is_purchased = await PurchasesChaptersService(self.db).is_purchased(
+                    user_id, chapter_id
+                )
+                if not is_purchased:
+                    raise ChapterIsNotPurchasedException
+            else:
+                raise ChapterIsNotPurchasedException
         return await self.db.pages.get_filtered(chapter_id=chapter_id)
 
     async def get_page_by_id(self, chapter_id: int, number: int):

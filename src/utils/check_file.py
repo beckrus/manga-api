@@ -41,7 +41,7 @@ def check_file_ext(file_path: str) -> None:
         raise BadFileExtException
 
 
-def file_inspection(file: UploadFile) -> str:
+def file_inspection_and_save(file: UploadFile) -> str:
     file_path = save_to_tmp(file)
     check_file_ext(file_path)
     check_files_inside(file_path)
@@ -75,7 +75,6 @@ def save_page_files(manga_id: int, chapter_id: int, file_path: str) -> list[str]
 
 def save_manga_poster(manga_id: int, file: UploadFile) -> str:
     file_ext = Path(file.filename).suffix
-    print(file_ext)
     if file_ext not in ALLOWED_EXTENSIONS:
         raise BadImageFileExtException
     save_path = f"./{settings.SAVE_IMG_FOLDER}/manga/{manga_id}/"

@@ -16,6 +16,10 @@
 <body class="bg-gray-100 text-gray-900">
   <div id="reader" class="max-w-3xl mx-auto py-4 space-y-4"></div>
 
+  <div id="paid-message" class="max-w-3xl mx-auto py-8 text-center hidden">
+
+  </div>
+
   <div id="end-message" class="max-w-3xl mx-auto py-8 text-center hidden">
     <p class="text-lg font-semibold mb-4">Это последняя глава</p>
     <button
@@ -33,6 +37,7 @@
 
     let isLoading = false;
     let isLastPage = false;
+    let isPaidNext = false;
 
     async function loadPages() {
       if (isLoading || isLastPage) return;
@@ -53,8 +58,24 @@
           container.appendChild(img);
         });
         const res_next = await fetch(`/manga/${mangaId}/chapters/${chapterId}/next`);
-        const res_next_data = await res_next.json();
-        chapterId = res_next_data.id
+        if (res_next.status == 401){
+          const message = document.getElementById("paid-message");
+          message.classList.remove("hidden");
+          const p = document.createElement("p");
+          p.classList = "text-lg font-semibold mb-4";
+          p.innerText="Следующая глава платная";
+          message.appendChild(p);
+          const btn = document.createElement("button");
+          btn.id="add-purchase";
+          btn.classList = "bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded";
+          btn.innerText="Купить";
+          message.appendChild(btn);
+          chapterId = null;
+          isPaidNext = true;
+        }else{
+          const res_next_data = await res_next.json();
+          chapterId = res_next_data.id
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -64,13 +85,12 @@
 
     // Загрузка первых страниц
     loadPages();
-    console.log(chapterId)
     // Infinity scroll
     window.addEventListener("scroll", () => {
       const scrollBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
       if (scrollBottom && chapterId) {
         loadPages()
-      } else if (scrollBottom && !chapterId) {
+      } else if (scrollBottom && !chapterId && !isPaidNext) {
         const message = document.getElementById("end-message");
         message.classList.remove("hidden");
       }

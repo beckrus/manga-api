@@ -248,6 +248,15 @@ class ChapterIsFreeHTTPException(BaseHTTPException):
     detail = "Chapter is free"
 
 
+class ChapterIsNotPurchasedException(BaseException):
+    detail = "Chapter is premium"
+
+
+class ChapterIsNotPurchasedHTTPException(BaseHTTPException):
+    status_code = 401
+    detail = "The chapter is premium, you have to buy it to access it"
+
+
 class NotEnoughtCoinsException(BaseException):
     detail = "Chapter is free"
 

@@ -110,6 +110,6 @@ async def logout_user(response: Response):
 )
 async def get_me(user_id: UserIdDep, db: DBDep):
     try:
-        return await UsersService(db).get_user_by_id(user_id)
+        return await UsersService(db).get_one_by_id_with_rel(user_id)
     except UserNotFoundException:
         raise UserNotFoundHTTPException

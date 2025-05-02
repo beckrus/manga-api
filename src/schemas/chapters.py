@@ -23,10 +23,16 @@ class ChapterDBAddDTO(ChapterAddDTO):
     created_by: int
 
 
-class ChapterResponseDTO(ChapterAddDTO):
+class ChapterPageDTO(BaseModel):
+    id: int
+    number: int
+    url: str
+
+
+class ChapterResponseDTO(BaseModel):
     id: int
     number: int
     manga_id: int
     is_premium: bool
     price: int
-    # pages: list[PageForChapterDTO]
+    pages: list[ChapterPageDTO]

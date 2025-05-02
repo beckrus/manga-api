@@ -34,8 +34,9 @@ class MangaOrm(Base):
     chapters: Mapped[list["ChaptersOrm"]] = relationship(
         back_populates="manga", cascade="all, delete-orphan"
     )
+
     favorited_by: Mapped[list["UserOrm"]] = relationship(
-        back_populates="favorite_books", secondary="favorite_manga"
+        back_populates="favorite_manga", secondary="favorite_manga"
     )
 
     __table_args__ = (UniqueConstraint("author", "main_name", name="_uniq_manga"),)

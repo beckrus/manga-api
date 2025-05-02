@@ -1,3 +1,4 @@
+from src.schemas.chapters import ChapterResponseDTO
 from src.exceptions import ChapterNotFoundException
 from src.models.chapters import ChaptersOrm
 from src.repositories.mappers.mappers import ChaptersMapper
@@ -8,7 +9,7 @@ class ChaptersRepository(BaseRepository):
     model = ChaptersOrm
     mapper = ChaptersMapper
 
-    async def get_next_chapter(self, chapter_id: int, manga_id: int):
+    async def get_next_chapter(self, chapter_id: int, manga_id: int) -> ChapterResponseDTO:
         chapter = await self.get_one_or_none(manga_id=manga_id, id=chapter_id)
         if not chapter:
             raise ChapterNotFoundException

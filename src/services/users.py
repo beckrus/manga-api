@@ -15,11 +15,16 @@ class UsersService(BaseService):
     async def get_users(self):
         return await self.db.users.get_all()
 
+    async def get_one_by_id_with_rel(self, user_id: int):
+        try:
+            user = await self.db.users.get_one_by_id_with_rel(user_id)
+            return user
+        except ObjectNotFoundException as e:
+            raise UserNotFoundException from e
+
     async def get_user_by_id(self, user_id: int):
         try:
             user = await self.db.users.get_one_by_id(user_id)
-            if user is None:
-                raise UserNotFoundException
             return user
         except ObjectNotFoundException as e:
             raise UserNotFoundException from e

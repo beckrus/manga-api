@@ -34,6 +34,16 @@ class UserResponseDTO(BaseModel):
     coin_balance: int
 
 
+class UserFavManga(BaseModel):
+    id: int
+    main_name: str
+    image: str
+
+
+class UserResponseDTOwithRel(UserResponseDTO):
+    favorite_manga: list[UserFavManga]
+
+
 class UserLoginDTO(BaseModel):
     username: str
     password: str
