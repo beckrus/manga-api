@@ -70,7 +70,8 @@ class ChaptersService(BaseService):
         except ObjectDuplicateException as e:
             raise ChapterDuplicateException from e
         finally:
-            rm_file(file_path)
+            if file_path:
+                rm_file(file_path)
 
     async def modify_chapter(self, chapter_id: int, data: ChapterPatchDTO):
         try:
