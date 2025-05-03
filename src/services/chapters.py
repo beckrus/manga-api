@@ -49,6 +49,7 @@ class ChaptersService(BaseService):
         return chapter
 
     async def add_chapter(self, manga_id: int, user_id: int, data: ChapterAddDTO, file: UploadFile):
+        file_path = None
         try:
             file_path = file_inspection_and_save(file)
 
