@@ -21,7 +21,7 @@
           <p><strong>Название:</strong> ${manga.main_name} | ${manga.secondary_name}</p>
           <p><strong>Описание:</strong> ${manga.description}</p>
           <p><strong>Просмотры:</strong> ${manga.count_views}</p>
-          <p><strong>Заклаки:</strong> ${manga.count_bookmarks}</p>
+          <p><strong>Следят:</strong> ${manga.count_bookmarks}</p>
       ${manga.current_reading_chapter?
       `<a href="/web/reader?manga_id=${mangaId}&chapter_id=${manga.current_reading_chapter}" class="mt-8 inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow">Продолжить</a>`
       :''

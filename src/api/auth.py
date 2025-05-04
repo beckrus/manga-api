@@ -14,7 +14,7 @@ from src.exceptions import (
 )
 from src.services.auth import AuthService
 from src.api.dependencies import DBDep, UserIdDep
-from services.users import UsersService
+from src.services.users import UsersService
 from src.schemas.users import UserAddDTO, UserLoginDTO
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
