@@ -41,10 +41,10 @@ class PagesService(BaseService):
 
     async def add_page(self, chapter_id: int, user_id: int, number: int, url: str):
         try:
-            Pages = PageDBAddDTO.model_validate(
+            page = PageDBAddDTO.model_validate(
                 {"number": number, "url": url, "chapter_id": chapter_id, "created_by": user_id}
             )
-            result = await self.db.pages.add(Pages)
+            result = await self.db.pages.add(page)
             await self.db.commit()
             return result
         except FKObjectNotFoundException as e:
@@ -63,8 +63,24 @@ class PagesService(BaseService):
                 raise PageNotFoundException
         except ObjectNotFoundException as e:
             raise PageNotFoundException from e
-        except ObjectDuplicateException as e:
-            raise PageDuplicateException from e
+        except FKObjectNotFoundException as e:
+            raise ChapterNotFoundException from e
+
+    async def put_page(self, chapter_id: int, user_id: int, number: int, url: str):
+        try:
+            page = PageDBAddDTO.model_validate(
+                {"number": number, "url": url, "chapter_id": chapter_id, "created_by": user_id}
+            )
+            if page:
+                result = await self.db.pages.replace(page)
+                await self.db.commit()
+                return result
+            else:
+                raise PageNotFoundException
+        except ObjectNotFoundException as e:
+            raise PageNotFoundException from e
+        except FKObjectNotFoundException as e:
+            raise ChapterNotFoundException from e
 
     async def delete_page(self, page_id: int):
         try:

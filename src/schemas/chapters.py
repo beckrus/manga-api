@@ -16,6 +16,7 @@ class ChapterAddDTO(BaseModel):
 class ChapterPatchDTO(ChapterAddDTO):
     number: int | None = None
     is_premium: bool | None = None
+    price: int | None = Field(default=None, ge=0)
 
 
 class ChapterDBAddDTO(ChapterAddDTO):

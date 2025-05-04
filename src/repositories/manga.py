@@ -15,6 +15,7 @@ class MangaRepository(BaseRepository):
 
     async def get_filtered(
         self,
+        sort: str,
         limit: int = 1,
         offset: int = 10,
         name: str | None = None,
@@ -36,6 +37,8 @@ class MangaRepository(BaseRepository):
         - If both `name` and `author` are provided, the results will include manga that match either filter.
         - If no filters are provided, all manga will be retrieved (up to the specified limit and offset).
         """
+        order_by_map = {"ASC": self.model.main_name.asc(), "DESC": self.model.main_name.desc()}
+
         manga_filters = []
         if name:
             manga_filters.append(func.lower(self.model.main_name).contains(name.strip().lower()))
@@ -51,6 +54,7 @@ class MangaRepository(BaseRepository):
         if manga_filters:
             query = query.where(or_(*manga_filters))
         query = query.limit(limit).offset(offset)
+        query = query.order_by(order_by_map.get(sort.upper()))
         # print(query.compile(compile_kwargs={"literal_binds": True}))
         result = await self.session.execute(query)
         manga = [self.mapper.map_to_domain_entity(data=hotel) for hotel in result.scalars().all()]

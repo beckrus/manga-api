@@ -39,8 +39,9 @@ class ChaptersService(BaseService):
         chapter = await self.db.chapters.get_next_chapter(chapter_id=chapter_id, manga_id=manga_id)
         if chapter.is_premium:
             if user_id:
+                print(chapter.id)
                 is_purchased = await PurchasesChaptersService(self.db).is_purchased(
-                    user_id, chapter_id
+                    user_id, chapter.id
                 )
                 if not is_purchased:
                     raise ChapterIsNotPurchasedException
@@ -74,13 +75,27 @@ class ChaptersService(BaseService):
             if file_path:
                 rm_file(file_path)
 
-    async def modify_chapter(self, chapter_id: int, data: ChapterPatchDTO):
+    async def modify_chapter(
+        self, user_id: int, chapter_id: int, data: ChapterPatchDTO, file: UploadFile | None = None
+    ):
+        file_path = None
+        data = ChapterPatchDTO.model_validate(data.model_dump(exclude_none=True))
         try:
-            result = await self.db.chapters.edit(id=chapter_id, data=data, exclude_unset=True)
+            chapter = await self.db.chapters.edit(id=chapter_id, data=data, exclude_unset=True)
+            if file:
+                file_path = file_inspection_and_save(file)
+                pages_path = save_page_files(chapter.manga_id, chapter_id, file_path)
+                for k, v in enumerate(pages_path):
+                    await PagesService(self.db).put_page(
+                        chapter_id=chapter_id, user_id=user_id, number=k + 1, url=v
+                    )
             await self.db.commit()
-            return result
+            return chapter
         except ObjectNotFoundException as e:
             raise ChapterNotFoundException from e
+        finally:
+            if file_path:
+                rm_file(file_path)
 
     async def delete_chapter(self, chapters_id: int):
         try:

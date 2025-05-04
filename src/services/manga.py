@@ -27,6 +27,7 @@ class MangaService(BaseService):
             author=filter.author,
             limit=pagination.per_page,
             offset=(pagination.page - 1) * pagination.per_page,
+            sort=pagination.sort,
         )
 
     async def get_manga_by_id(self, manga_id: int, user_id: int | None = None):

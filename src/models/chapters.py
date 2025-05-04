@@ -28,7 +28,7 @@ class ChaptersOrm(Base):
     manga: Mapped["MangaOrm"] = relationship(back_populates="chapters")
 
     pages: Mapped[list["PagesOrm"]] = relationship(
-        "PagesOrm", lazy="selectin", cascade="all, delete-orphan"
+        "PagesOrm", lazy="selectin", cascade="all, delete-orphan", order_by="PagesOrm.number.asc()"
     )
 
     __table_args__ = (UniqueConstraint("manga_id", "number", name="_uniq_manga_chapter"),)

@@ -85,7 +85,7 @@ async def get_next_chapter(
 ):
     try:
         chapter = await ChaptersService(db).get_next_chapter(
-            manga_id=manga_id, chapter_id=chapter_id
+            manga_id=manga_id, chapter_id=chapter_id, user_id=tracking_info.user_id
         )
         await ViewsService(db).increase_count_views(chapter.manga_id, tracking_info)
         await ReadProgresService(db).add_progress(chapter.manga_id, chapter.id, tracking_info)
@@ -153,11 +153,22 @@ async def add_chapter(
     - **Returns**: The updated details of the chapter.
     - **Error**: Raises a 404 error if the chapter with the specified ID is not found.
     """,
-    dependencies=[Depends(get_admin_user)],
 )
-async def modify_chapter(db: DBDep, manga_id: int, chapter_id: int, data: ChapterPatchDTO):
+async def modify_chapter(
+    db: DBDep,
+    manga_id: int,
+    chapter_id: int,
+    user_id: UserIdAdminDep,
+    number: int | None = None,
+    is_premium: bool | None = None,
+    price: int | None = None,
+    file: Annotated[UploadFile | None, File()] = None,
+):
     try:
-        return await ChaptersService(db).modify_chapter(chapter_id=chapter_id, data=data)
+        chapter_data = ChapterPatchDTO(number=number, is_premium=is_premium, price=price)
+        return await ChaptersService(db).modify_chapter(
+            user_id=user_id, chapter_id=chapter_id, data=chapter_data, file=file
+        )
 
     except ChapterNotFoundException:
         raise ChapterNotFoundHTTPException
