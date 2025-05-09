@@ -34,3 +34,9 @@ class RefreshTokensRepository(BaseRepository):
         stmt = delete(self.model).filter_by(user_id=user_id)
         await self.session.execute(stmt)
         await self.session.commit()
+
+    async def delete_expired_tokens(self) -> int:
+        stmt = delete(self.model).filter(self.model.expires_at <= datetime.now())
+        res = await self.session.execute(stmt)
+        await self.session.commit()
+        return res.rowcount

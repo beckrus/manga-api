@@ -2,7 +2,7 @@ from typing import Generic, TypeVar
 
 from pydantic import BaseModel
 
-from database import Base
+from src.database import Base
 
 
 DBModelType = TypeVar("DBModelType", bound=Base)

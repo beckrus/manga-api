@@ -13,7 +13,7 @@ from src.exceptions import (
     ObjectNotFoundException,
 )
 from src.database import Base
-from utils.re import get_missing_fk
+from src.utils.re import get_missing_fk
 
 # Type definition for Model
 DBModelType = TypeVar("DBModelType", bound=Base)

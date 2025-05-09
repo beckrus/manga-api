@@ -1,4 +1,4 @@
-from schemas.views import TrackingInfo
+from src.schemas.views import TrackingInfo
 from src.schemas.read_progress import ReadProgressDTO
 from src.exceptions import (
     FKObjectNotFoundException,

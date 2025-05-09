@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi.security.utils import get_authorization_scheme_param
 from jwt import InvalidTokenError
 
-from schemas.views import TrackingInfo
+from src.schemas.views import TrackingInfo
 from src.services.users import UsersService
 from src.exceptions import (
     AccessForbiddenHttpException,

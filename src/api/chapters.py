@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, File, Form, UploadFile
 from fastapi_cache.decorator import cache
 
-from schemas.views import TrackingInfo
+from src.schemas.views import TrackingInfo
 from src.services.read_progress import ReadProgresService
 from src.services.views import ViewsService
 from src.exceptions import (
