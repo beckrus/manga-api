@@ -1,3 +1,5 @@
+from src.models.refresh_tokens import RefreshTokensOrm
+from src.schemas.refresh_tokens import RefreshTokenResponseDTO
 from src.models.purchases_chapters import PurchasesChaptersOrm
 from src.schemas.purchases_chapters import PurchasesChaptersResponseDTO
 from src.models.read_progress import ReadProgressOrm
@@ -62,3 +64,8 @@ class ReadProgressMapper(BaseMapper):
 class PurchasesChaptersMapper(BaseMapper):
     model = PurchasesChaptersOrm
     schema = PurchasesChaptersResponseDTO
+
+
+class RefreshTokensMapper(BaseMapper):
+    model = RefreshTokensOrm
+    schema = RefreshTokenResponseDTO

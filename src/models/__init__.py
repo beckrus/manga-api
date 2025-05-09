@@ -7,7 +7,7 @@ from src.models.manga import MangaOrm
 from src.models.pages import PagesOrm
 from src.models.users import UserOrm
 from src.models.read_progress import ReadProgressOrm
-
+from src.models.refresh_tokens import RefreshTokensOrm
 
 all = [
     MangaOrm,
@@ -19,4 +19,5 @@ all = [
     PagesOrm,
     ReadProgressOrm,
     PurchasesChaptersOrm,
+    RefreshTokensOrm,
 ]

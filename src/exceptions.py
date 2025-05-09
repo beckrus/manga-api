@@ -264,3 +264,21 @@ class NotEnoughtCoinsException(BaseException):
 class NotEnoughtCoinsHTTPException(BaseHTTPException):
     status_code = 400
     detail = "Need more gold"
+
+
+class RefreshTokenExpiredException(BaseException):
+    detail = "Refresh Token expired"
+
+
+class RefreshTokenExpiredHTTPException(BaseHTTPException):
+    status_code = 401
+    detail = "Refresh Token expired"
+
+
+class RefreshTokenNotFoundException(BaseException):
+    detail = "Refresh Token not found"
+
+
+class RefreshTokenNotFoundHTTPException(BaseHTTPException):
+    status_code = 404
+    detail = "Refresh Token not found"

@@ -5,6 +5,9 @@ from config import settings
 from src.exceptions import (
     PasswordMatchException,
     PasswordMatchHTTPException,
+    RefreshTokenExpiredException,
+    RefreshTokenExpiredHTTPException,
+    RefreshTokenNotFoundHTTPException,
     UserAuthException,
     UserAuthHTTPException,
     UserDuplicateException,
@@ -13,7 +16,7 @@ from src.exceptions import (
     UserNotFoundHTTPException,
 )
 from src.services.auth import AuthService
-from src.api.dependencies import DBDep, UserIdDep
+from src.api.dependencies import DBDep, RefreshTokenDep, UserIdDep
 from src.services.users import UsersService
 from src.schemas.users import UserAddDTO, UserLoginDTO
 
@@ -58,44 +61,95 @@ async def register(db: DBDep, data: UserAddDTO):
           "username": "existing_user",
           "password": "securepassword"
       }
-    - **Returns**: Access and refresh tokens.
-    - **Cookies**: Sets `access_token` and `refresh_token` as HTTP-only cookies.
-    - **Error**: Raises a 401 error if the credentials are invalid.
+    - **Returns**: Access and refresh(cookie only) tokens.
+    - **Cookies**: Sets `refresh_token` as an HTTP-only cookie.
+    - **Error**: Raises a 401 error if the credentials are invalid or the user is not found.
     """,
 )
-async def login(db: DBDep, data: Annotated[UserLoginDTO, Form()], response: Response):
+async def login(
+    db: DBDep,
+    data: Annotated[UserLoginDTO, Form()],
+    response: Response,
+    refresh_token: RefreshTokenDep,
+):
     try:
         tokens = await AuthService(db).authenticate_user(data)
+        if refresh_token:
+            await AuthService(db).delete_refresh_token(refresh_token)
     except (UserAuthException, UserNotFoundException):
         raise UserAuthHTTPException
-    response.set_cookie(
-        key="access_token",
-        value=tokens.access_token,
-        max_age=60 * settings.ACCESS_TOKEN_EXPIRE_MINUTES,
-        httponly=True,
-    )
+
     response.set_cookie(
         key="refresh_token",
         value=tokens.refresh_token,
         max_age=60 * settings.REFRESH_TOKEN_EXPIRE_MINUTES,
         httponly=True,
     )
-    return tokens
+    return {"access_token": tokens.access_token}
 
 
 @router.post(
     "/logout",
     summary="Logout User",
     description="""
-    Log out the current user by deleting their authentication cookies.
+    Log out the current user by deleting their authentication cookies and refresh token.
 
     - **Returns**: A message confirming the user has been logged out.
     """,
 )
-async def logout_user(response: Response):
-    response.delete_cookie("access_token")
+async def logout_user(db: DBDep, response: Response, refresh_token: RefreshTokenDep):
+    if refresh_token:
+        await AuthService(db).delete_refresh_token(refresh_token)
     response.delete_cookie("refresh_token")
     return {"message": "Logged out"}
+
+
+@router.post(
+    "/refresh-token",
+    summary="Refresh Token",
+    description="""
+    Refresh the access token using a valid refresh token.
+
+    - **Cookies**: Requires a valid `refresh_token` cookie.
+    - **Returns**: A new access token and updates the `refresh_token` cookie.
+    - **Error**: Raises a 404 error if the refresh token is not found or a 401 error if the refresh token has expired.
+    """,
+)
+async def refresh_token(db: DBDep, response: Response, refresh_token: RefreshTokenDep):
+    if not refresh_token:
+        raise RefreshTokenNotFoundHTTPException
+    try:
+        tokens = await AuthService(db).refresh_token(refresh_token)
+        response.set_cookie(
+            key="refresh_token",
+            value=tokens.refresh_token,
+            max_age=60 * settings.REFRESH_TOKEN_EXPIRE_MINUTES,
+            httponly=True,
+            secure=True,
+        )
+
+        return {"access_token": tokens.access_token}
+
+    except RefreshTokenExpiredException:
+        raise RefreshTokenExpiredHTTPException
+
+
+@router.delete(
+    "/refresh-token-all",
+    summary="Delete All Refresh Tokens",
+    description="""
+    Delete all refresh tokens for the currently authenticated user.
+
+    - **Access**: Requires the user to be authenticated.
+    - **Returns**: No content (204 status code) if successful.
+    """,
+    status_code=204,
+)
+async def delete_all_users_refresh_tokens(user_id: UserIdDep, db: DBDep):
+    try:
+        return await AuthService(db).delete_all_tokens(user_id)
+    except UserNotFoundException:
+        raise UserNotFoundHTTPException
 
 
 @router.get(

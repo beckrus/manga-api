@@ -69,9 +69,19 @@ async def ac_auth(add_user) -> AsyncGenerator[AsyncClient, Any]:
             "/auth/login", data={"username": TEST_FIRST_USERNAME, "password": TEST_FIRST_PASSWORD}
         )
         assert res.status_code == 200
-        assert ac.cookies.get("access_token")
-        assert ac.cookies.get("refresh_token")
-        yield ac
+        res_data = res.json()
+        access_token = res_data.get("access_token")
+        assert access_token
+        refresh_token = ac.cookies.get("refresh_token")
+        assert refresh_token
+
+        async with AsyncClient(
+            transport=ASGITransport(app),
+            base_url="http://test",
+            headers={"Authorization": f"Bearer {access_token}"},
+            cookies={"refresh_token": refresh_token},
+        ) as ac_auth:
+            yield ac_auth
 
 
 @pytest.fixture()

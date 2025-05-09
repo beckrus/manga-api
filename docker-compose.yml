@@ -10,7 +10,7 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - ./media:/media
+      - ./media:/app/media
     depends_on:
       redis:
         condition: service_healthy

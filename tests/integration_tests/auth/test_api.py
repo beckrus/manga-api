@@ -34,21 +34,32 @@ async def test_auth_api_flow(
     if status_code != 200:
         return
     assert register_data["username"] == username
+
     res_login = await ac.post("/auth/login", data={"username": username, "password": password})
     login_data = res_login.json()
     assert res_login.status_code == 200
-    assert "access_token" in login_data
-    assert "refresh_token" in login_data
-    assert ac.cookies.get("access_token")
-    assert ac.cookies.get("refresh_token")
-    res_me = await ac.get("/auth/me")
+    access_token = login_data.get("access_token")
+    assert access_token
+    headers = {"Authorization": f"Bearer {access_token}"}
+    refresh_token = ac.cookies.get("refresh_token")
+    assert refresh_token
+
+    res_refresh = await ac.post("/auth/refresh-token", headers=headers)
+    assert res_refresh.status_code == 200
+    assert refresh_token != ac.cookies.get("refresh_token")
+    refresh_data = res_refresh.json()
+    access_token = refresh_data.get("access_token")
+    assert access_token
+    headers = {"Authorization": f"Bearer {access_token}"}
+
+    res_me = await ac.get("/auth/me", headers=headers)
     me_data = res_me.json()
     assert res_me.status_code == 200
     assert me_data["username"] == username
     assert me_data["email"] == email
-    res_logout = await ac.post("/auth/logout")
+
+    res_logout = await ac.post("/auth/logout", headers=headers)
     assert res_logout.status_code == 200
-    assert not ac.cookies.get("access_token")
     assert not ac.cookies.get("refresh_token")
     res_me = await ac.get("/auth/me")
     assert res_me.status_code == 401

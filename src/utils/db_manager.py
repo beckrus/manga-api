@@ -1,6 +1,7 @@
 from collections.abc import Callable
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.repositories.refresh_tokens import RefreshTokensRepository
 from src.repositories.purchases_chapters import PurchasesChaptersRepository
 from src.repositories.read_progress import ReadingProgressRepository
 from src.repositories.comments import CommentsRepository
@@ -28,6 +29,7 @@ class DBManager:
         self.comments = CommentsRepository(self.session)
         self.read_progress = ReadingProgressRepository(self.session)
         self.purchases_chapters = PurchasesChaptersRepository(self.session)
+        self.refresh_tokens = RefreshTokensRepository(self.session)
 
         return self
 

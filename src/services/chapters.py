@@ -39,7 +39,6 @@ class ChaptersService(BaseService):
         chapter = await self.db.chapters.get_next_chapter(chapter_id=chapter_id, manga_id=manga_id)
         if chapter.is_premium:
             if user_id:
-                print(chapter.id)
                 is_purchased = await PurchasesChaptersService(self.db).is_purchased(
                     user_id, chapter.id
                 )
