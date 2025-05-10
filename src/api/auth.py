@@ -92,14 +92,33 @@ async def login(
     return {"access_token": tokens.access_token}
 
 
-@router.get("/login/google")
+@router.get(
+    "/login/google",
+    description="""
+    Generate the Google OAuth2 login URL.
+
+    - **Returns**: A URL that redirects the user to Google's OAuth2 authentication page.
+    - **Usage**: Use this endpoint to initiate the Google OAuth2 login flow.
+    """,
+)
 async def login_google():
     return {
         "url": f"https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={settings.GOOGLE_CLIENT_ID}&redirect_uri={settings.GOOGLE_REDIRECT_URI}&scope=openid%20profile%20email&access_type=offline"
     }
 
 
-@router.get("/google")
+@router.get(
+    "/google",
+    description="""
+    Handle the callback from Google OAuth2.
+
+    - **Parameters**:
+      - `code`: The authorization code returned by Google after the user grants access.
+    - **Returns**: An access token for the authenticated user.
+    - **Cookies**: Sets a `refresh_token` as an HTTP-only cookie.
+    - **Error**: Raises a 401 error if the user information cannot be retrieved from Google.
+    """,
+)
 async def auth_google(code: str, db: DBDep, response: Response):
     try:
         user_info = await AuthService(db).get_google_user_info(code)
