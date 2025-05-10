@@ -59,3 +59,8 @@ class UserHashedPwdDTO(BaseModel):
 class UserTokens(BaseModel):
     access_token: str
     refresh_token: str
+
+
+class UserOAuth2LoginDTO(BaseModel):
+    username: str
+    email: str

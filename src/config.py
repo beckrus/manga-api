@@ -30,6 +30,12 @@ class Settings(BaseSettings):
 
     SITE_NAME: str = "Manga-local"
 
+    GOOGLE_CLIENT_ID: str | None = None
+    GOOGLE_CLIENT_SECRET: str | None = None
+    GOOGLE_REDIRECT_URI: str = "http://127.0.0.1:8000/auth"
+
+    ALLOW_ORIGINS: list[str] = ["http://127.0.0.1:8000", "http://localhost:8000"]
+
     @property
     def DB_URL(self):
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"

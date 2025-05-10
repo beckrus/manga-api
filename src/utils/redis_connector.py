@@ -12,7 +12,7 @@ class RedisManager:
         self.port = port
         self.redis: redis.Redis = None
 
-    async def connect(self, try_count: int = 1, try_max: int = 5):
+    async def connect(self, try_count: int = 1, try_max: int = 5) -> None:
         logging.info(f"Connecting to Redis server: {self.host=}, {self.port=}...")
         self.redis = redis.Redis(host=self.host, port=self.port)
 
@@ -27,7 +27,7 @@ class RedisManager:
             await asyncio.sleep(10)
             await self.connect(try_count=try_count + 1)
 
-    async def set(self, key: str, value: str, expire: int | None = None):
+    async def set(self, key: str, value: str, expire: int | None = None) -> None:
         if expire:
             await self.redis.set(key, value, ex=expire)
         else:
@@ -36,10 +36,10 @@ class RedisManager:
     async def get(self, key):
         return await self.redis.get(key)
 
-    async def delete(self, key):
+    async def delete(self, key) -> None:
         await self.redis.delete(key)
 
-    async def close(self):
+    async def close(self) -> None:
         await self.redis.close()
         logging.info("Redis connection closed")
 

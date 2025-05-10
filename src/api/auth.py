@@ -1,8 +1,11 @@
 from typing import Annotated
 from fastapi import APIRouter, Form, Response
 
+
 from config import settings
 from src.exceptions import (
+    GoogleAuthFailedHTTPException,
+    GoogleAuthFailedUserInfoException,
     PasswordMatchException,
     PasswordMatchHTTPException,
     RefreshTokenExpiredException,
@@ -19,6 +22,7 @@ from src.services.auth import AuthService
 from src.api.dependencies import DBDep, RefreshTokenDep, UserIdDep
 from src.services.users import UsersService
 from src.schemas.users import UserAddDTO, UserLoginDTO
+
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -85,6 +89,32 @@ async def login(
         max_age=60 * settings.REFRESH_TOKEN_EXPIRE_MINUTES,
         httponly=True,
     )
+    return {"access_token": tokens.access_token}
+
+
+@router.get("/login/google")
+async def login_google():
+    return {
+        "url": f"https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={settings.GOOGLE_CLIENT_ID}&redirect_uri={settings.GOOGLE_REDIRECT_URI}&scope=openid%20profile%20email&access_type=offline"
+    }
+
+
+@router.get("/google")
+async def auth_google(code: str, db: DBDep, response: Response):
+    try:
+        user_info = await AuthService(db).get_google_user_info(code)
+    except GoogleAuthFailedUserInfoException:
+        raise GoogleAuthFailedHTTPException
+
+    tokens = await AuthService(db).authenticate_oauth_user(user_info)
+
+    response.set_cookie(
+        key="refresh_token",
+        value=tokens.refresh_token,
+        max_age=60 * settings.REFRESH_TOKEN_EXPIRE_MINUTES,
+        httponly=True,
+    )
+
     return {"access_token": tokens.access_token}
 
 

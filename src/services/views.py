@@ -18,13 +18,13 @@ class ViewsService(BaseService):
                 if seen_before:
                     return
                 else:
-                    await redis_manager.set(f"views.{manga_id}.{tracking_info.user_id}", 1)
+                    await redis_manager.set(f"views.{manga_id}.{tracking_info.user_id}", "1")
             else:
                 seen_before = await redis_manager.get(f"views.{manga_id}.{tracking_info.ip}")
                 if seen_before:
                     return
                 else:
-                    await redis_manager.set(f"views.{manga_id}.{tracking_info.ip}", 1)
+                    await redis_manager.set(f"views.{manga_id}.{tracking_info.ip}", "1")
             manga = await self.db.manga.get_one_by_id(manga_id)
             patch_data = MangaIncreaseViewsDTO.model_validate(
                 {"count_views": manga.count_views + 1}

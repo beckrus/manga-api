@@ -282,3 +282,12 @@ class RefreshTokenNotFoundException(BaseException):
 class RefreshTokenNotFoundHTTPException(BaseHTTPException):
     status_code = 404
     detail = "Refresh Token not found"
+
+
+class GoogleAuthFailedUserInfoException(BaseException):
+    detail = "Google authentication failed: unable to obtain user details"
+
+
+class GoogleAuthFailedHTTPException(BaseHTTPException):
+    status_code = 401
+    detail = "Google authentication failed"
