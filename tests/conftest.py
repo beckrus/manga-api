@@ -6,6 +6,8 @@ import pytest
 
 # patch fastapi_chache
 mock.patch("fastapi_cache.decorator.cache", lambda *args, **kwargs: lambda f: f).start()
+# patch celery task
+mock.patch("src.tasks.email.send_welcome_email_task.delay", return_value=1).start()
 
 # patch redis_manager
 mock_instance = MagicMock()
