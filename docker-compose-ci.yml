@@ -6,7 +6,7 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - /var/lib/manga/media:/media
+      - /var/lib/manga/media:/app/media
     depends_on:
       redis:
         condition: service_healthy
@@ -23,7 +23,7 @@ services:
     ports:
       - 5431:5432
     volumes:
-      - ./postgres_data:/data/postgres
+      - /var/lib/manga/postgres_data:/data/postgres
     environment:
       POSTGRES_USER: manga
       POSTGRES_PASSWORD: manga
@@ -41,7 +41,7 @@ services:
     container_name: 'manga_redis'
     restart: always
     volumes: 
-      - ./cache:/data
+      - /var/lib/manga/cache:/data
     healthcheck:
       test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
     networks:
