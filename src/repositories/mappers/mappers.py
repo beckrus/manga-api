@@ -10,7 +10,7 @@ from src.schemas.favorites import FavoriteResponseMangaDTO
 from src.schemas.pages import PageResponseDTO
 from src.models.pages import PagesOrm
 from src.models.chapters import ChaptersOrm
-from src.schemas.chapters import ChapterResponseDTO
+from src.schemas.chapters import ChapterResponseWithPagesDTO
 from src.models.users import UserOrm
 from src.schemas.users import UserResponseDTO
 from src.schemas.manga import MangaResponseDTO
@@ -38,7 +38,7 @@ class UserMapper(BaseMapper):
 
 class ChaptersMapper(BaseMapper):
     model = ChaptersOrm
-    schema = ChapterResponseDTO
+    schema = ChapterResponseWithPagesDTO
 
 
 class PagesMapper(BaseMapper):

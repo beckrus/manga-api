@@ -1,5 +1,5 @@
 from sqlalchemy import select
-from src.schemas.chapters import ChapterResponseDTO
+from src.schemas.chapters import ChapterResponseDTO, ChapterResponseWithPagesDTO
 from src.exceptions import ChapterNotFoundException
 from src.models.chapters import ChaptersOrm
 from src.repositories.mappers.mappers import ChaptersMapper
@@ -17,7 +17,7 @@ class ChaptersRepository(BaseRepository):
         result = await self.session.execute(query)
         return [self.mapper.map_to_domain_entity(model) for model in result.scalars().all()]
 
-    async def get_next_chapter(self, chapter_id: int, manga_id: int) -> ChapterResponseDTO:
+    async def get_next_chapter(self, chapter_id: int, manga_id: int) -> ChapterResponseWithPagesDTO:
         chapter = await self.get_one_or_none(manga_id=manga_id, id=chapter_id)
         if not chapter:
             raise ChapterNotFoundException

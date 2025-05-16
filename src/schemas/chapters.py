@@ -36,4 +36,7 @@ class ChapterResponseDTO(BaseModel):
     manga_id: int
     is_premium: bool
     price: int
+
+
+class ChapterResponseWithPagesDTO(ChapterResponseDTO):
     pages: list[ChapterPageDTO]
