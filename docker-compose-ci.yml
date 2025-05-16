@@ -23,7 +23,7 @@ services:
     ports:
       - 5431:5432
     volumes:
-      - /var/lib/manga/postgres_data:/data/postgres
+      - /var/lib/manga/postgres_data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: manga
       POSTGRES_PASSWORD: manga
