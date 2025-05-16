@@ -14,7 +14,7 @@ from src.exceptions import (
     PageFileImageNameException,
 )
 
-ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
+ALLOWED_EXTENSIONS = settings.ALLOWED_IMAGE_EXTENSIONS
 
 
 def check_files_inside(file: str) -> None:

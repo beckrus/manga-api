@@ -34,6 +34,8 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_SECRET: str | None = None
     GOOGLE_REDIRECT_URI: str = "http://127.0.0.1:8000/auth"
 
+    ALLOWED_IMAGE_EXTENSIONS: list[str]
+
     ALLOW_ORIGINS: list[str] = ["http://127.0.0.1:8000", "http://localhost:8000"]
 
     @property
