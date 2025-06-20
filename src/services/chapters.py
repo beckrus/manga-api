@@ -57,14 +57,16 @@ class ChaptersService(BaseService):
                 {**data.model_dump(), "manga_id": manga_id, "created_by": user_id}
             )
             chapter = await self.db.chapters.add(chapter_dto)
-
+            print(f"Chapter added: {chapter}")
             chapter_id = chapter.id
             pages_path = save_page_files(manga_id, chapter_id, file_path)
             for k, v in enumerate(pages_path):
                 await PagesService(self.db).add_page(
                     chapter_id=chapter_id, user_id=user_id, number=k + 1, url=v
                 )
+                print(f"Page added: {k + 1, v}")
             await self.db.commit()
+            print(f"Chapter committed: {chapter}")
             return chapter
         except FKObjectNotFoundException as e:
             raise MangaNotFoundException from e
