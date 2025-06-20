@@ -119,7 +119,7 @@ async def add_chapter(
     is_premium: Annotated[bool, Form()],
     file: Annotated[UploadFile, File()],
     user_id: UserIdAdminDep,
-) -> ChapterResponseDTO:
+):
     chapter_data = ChapterAddDTO(number=number, is_premium=is_premium, price=price)
     try:
         chapter = await ChaptersService(db).add_chapter(

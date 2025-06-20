@@ -55,7 +55,7 @@ class BaseRepository(Generic[DBModelType, SchemaType]):
         except NoResultFound as e:
             raise ObjectNotFoundException from e
 
-    async def add(self, data: SchemaType) -> None:
+    async def add(self, data: SchemaType) -> SchemaType:
         try:
             stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
             result = await self.session.execute(stmt)
