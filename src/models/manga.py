@@ -35,6 +35,8 @@ class MangaOrm(Base):
         back_populates="manga", cascade="all, delete-orphan"
     )
 
+    is_completed: Mapped[bool] = mapped_column(default=False)
+
     favorited_by: Mapped[list["UserOrm"]] = relationship(
         back_populates="favorite_manga", secondary="favorite_manga"
     )
