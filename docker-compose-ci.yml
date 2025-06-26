@@ -6,7 +6,7 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - /mnt/nfs/manga/media:/app/media
+      - /mnt/nfs/share/media:/app/media
     depends_on:
       redis:
         condition: service_healthy
