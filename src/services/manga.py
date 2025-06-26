@@ -4,7 +4,9 @@ from src.api.dependencies import MangaFilterDep, PaginationDep
 from src.exceptions import (
     AuthorNotFoundException,
     FKObjectNotFoundException,
+    MangaDuplicateException,
     MangaNotFoundException,
+    ObjectDuplicateException,
     ObjectNotFoundException,
 )
 from src.services.base import BaseService
@@ -37,7 +39,6 @@ class MangaService(BaseService):
             raise MangaNotFoundException from e
 
     async def add_manga(self, user_id: int, data: list[dict]):
-        data
         try:
             if isinstance(data, list):
                 manga = [
@@ -52,6 +53,8 @@ class MangaService(BaseService):
             return result
         except FKObjectNotFoundException as e:
             raise AuthorNotFoundException from e
+        except ObjectDuplicateException as e:
+            raise MangaDuplicateException from e
 
     async def modify_manga(self, manga_id: int, data: MangaPatchDTO):
         try:

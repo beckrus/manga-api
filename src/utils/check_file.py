@@ -1,3 +1,4 @@
+import logging
 import os
 from pathlib import Path
 import shutil
@@ -14,7 +15,7 @@ from src.exceptions import (
     PageFileImageNameException,
 )
 
-ALLOWED_EXTENSIONS = settings.ALLOWED_IMAGE_EXTENSIONS
+ALLOWED_EXTENSIONS: list[str] = settings.ALLOWED_IMAGE_EXTENSIONS
 
 
 def check_files_inside(file: str) -> None:
@@ -70,6 +71,7 @@ def save_page_files(manga_id: int, chapter_id: int, file_path: str) -> list[str]
 
     images = [url_path + file for file in files_in_zip]
     images_sorted = sorted(images, key=get_number)
+    logging.info(f"Images extracted: {images_sorted}")
     return images_sorted
 
 

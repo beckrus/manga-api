@@ -131,11 +131,11 @@ async def add_chapter(
     except ChapterDuplicateException:
         raise ChapterDuplicateHTTPException
     except BadFileExtException:
-        BadFileExtHTTPException
+        raise BadFileExtHTTPException
     except BadFileExtInArchiveException:
         raise BadFileExtInArchiveHTTPException
     except PageFileImageNameException:
-        PageFileImageNameHTTPException
+        raise PageFileImageNameHTTPException
 
 
 @router.patch(
