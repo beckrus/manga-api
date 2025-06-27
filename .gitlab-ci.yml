@@ -38,15 +38,19 @@ Tests:
     - docker run --rm --network manga_net manga-api-image pytest -s -v
 
 
-Build Image:
+Build Image Backend:
   stage: build
   before_script: 
     - cp ${PROD_ENV} ./backend/.env
     - cp ${TEST_ENV} ./backend/.env_test
     - ls -lah
   script:
-    - docker build -t manga-api-image .
+    - docker build -t manga-api-image -f Dockerfile .
 
+Build Image Frontend:
+  stage: build
+  script:
+    - docker build -t manga-frontend-image -f Dockerfile_frontend.
 
 Deploy App:
   stage: deploy

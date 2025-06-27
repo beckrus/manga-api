@@ -77,15 +77,13 @@ services:
        - manga_net
 
   frontend:
+    image: manga-frontend-image:latest
     container_name: manga_frontend
     restart: always
     depends_on:
       - backend
     ports:
       - 3080:3000
-    build:
-      context: .
-      dockerfile: Dockerfile_frontend
     networks:
       - manga_net
 

@@ -24,3 +24,5 @@ cache
 #front
 #frontend
 node_modules
+
+.env
