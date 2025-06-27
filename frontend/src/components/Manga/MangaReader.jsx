@@ -25,7 +25,6 @@ function MangaReader() {
         fetchManga();
     }, [idAndSlug, mangaId]);
 
-    // Initialize from URL and load initial chapter
     useEffect(() => {
         setCurrentChapterId(chapterId);
         loadChapter(mangaId, chapterId);
@@ -40,7 +39,6 @@ function MangaReader() {
             const windowHeight = window.innerHeight;
             const documentHeight = document.documentElement.scrollHeight;
             
-            // Загружаем следующую главу когда остается 800px до конца
             if (scrollTop + windowHeight >= documentHeight - 800) {
                 loadNextChapter();
             }
