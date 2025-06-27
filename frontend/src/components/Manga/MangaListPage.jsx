@@ -12,7 +12,7 @@ function MangaListPage() {
   useEffect(() => {
     const fetchManga = async () => {
       try {
-        const response = await fetch('http://10.10.0.6:8000/manga?page=1&per_page=10&sort=ASC');
+        const response = await fetch('api/manga?page=1&per_page=10&sort=ASC');
         const data = await response.json();
         setMangaList(data);
       } catch (error) {
@@ -42,18 +42,17 @@ function MangaListPage() {
         className="border p-2 w-full mb-4 rounded"
       />
 
-      <div className="grid gap-4">
+      <div className="flex gap-4">
         {mangaList.map((manga) => (
-            <div key={manga.id} className="w-40 bg-white rounded-xl shadow overflow-hidden cursor-pointer">
-              <Link to={`/manga/${manga.id}-${slugify(manga.secondary_name)}`}>
-
+            <div key={manga.id} className="w-60 bg-white rounded-xl shadow overflow-hidden cursor-pointer ">
+              <Link to={`/manga/${manga.id}-${slugify(manga.secondary_name)}`} className="flex flex-col h-full">
                 <img 
-                    src={`http://10.10.0.6:8000${manga.image}`}
+                    src={`api${manga.image}`}
                     alt={manga.main_name}
                     className="w-full object-cover"/>
                 <h3 className="mt-2 font-semibold text-center">{manga.main_name}</h3>
                 <p className="text-center">{manga.secondary_name}</p>
-                <div className="flex items-center justify-evenly">
+                <div className="flex items-center justify-evenly mt-auto pb-2">
                     <div className="flex mt-2 text-center">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
@@ -71,7 +70,6 @@ function MangaListPage() {
                     </div>
                 </div>
               </Link>
-                
             </div>
         ))}
       </div>
