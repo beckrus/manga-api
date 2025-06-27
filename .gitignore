@@ -12,7 +12,6 @@ postgres_data
 
 # Virtual environments
 .venv
-.env
 
 #media
 media/
