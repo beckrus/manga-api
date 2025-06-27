@@ -50,7 +50,7 @@ Build Image Backend:
 Build Image Frontend:
   stage: build
   script:
-    - docker build -t manga-frontend-image -f Dockerfile_frontend.
+    - docker build -t manga-frontend-image -f Dockerfile_frontend .
 
 Deploy App:
   stage: deploy
