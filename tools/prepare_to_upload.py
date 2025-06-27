@@ -39,7 +39,9 @@ def save_to_zip(chapter_number: int, folder_name: str, src: Path, dest: Path):
             if file_suffix in ALLOWED_EXTENSIONS:
                 ch_pictures.append(p_path)
             else:
-                print(f"WARNING: {p_path} bad extension {file_suffix}, not in {ALLOWED_EXTENSIONS}")
+                print(
+                    f"WARNING: {p_path} bad extension {file_suffix}, not in {ALLOWED_EXTENSIONS}"
+                )
         with zipfile.ZipFile(ch_file_dest, "w") as zipf:
             for file in ch_pictures:
                 zipf.write(file, arcname=file.name)
@@ -64,7 +66,10 @@ ch_list = []
 @show_execute_time
 def run_with_pools(src: Path, dest: Path):
     with ThreadPoolExecutor() as tp:
-        tasks = {tp.submit(save_to_zip, k, n, src, dest) for k, n in enumerate(os.listdir(src))}
+        tasks = {
+            tp.submit(save_to_zip, k, n, src, dest)
+            for k, n in enumerate(os.listdir(src))
+        }
         for task in as_completed(tasks):
             print(task.result())
 
@@ -72,7 +77,9 @@ def run_with_pools(src: Path, dest: Path):
 @asynccontextmanager
 async def ac_auth() -> AsyncGenerator[AsyncClient, Any]:
     async with AsyncClient(base_url=API_URL) as ac:
-        res = await ac.post("/auth/login", data={"username": USERNAME, "password": PASSWORD})
+        res = await ac.post(
+            "/auth/login", data={"username": USERNAME, "password": PASSWORD}
+        )
         assert res.status_code == 200, res.status_code
         res_data = res.json()
         access_token = res_data.get("access_token")
@@ -93,7 +100,9 @@ async def post_chapter(client: AsyncClient, manga_id: int, data: dict, zip_path:
                 files={"file": (f"{manga_id}-{f.name}", f, "application/zip")},
                 data=data,
             )
-            assert res_post.status_code == 200 or res_post.status_code == 409, res_post.text
+            assert res_post.status_code == 200 or res_post.status_code == 409, (
+                res_post.text
+            )
             print(data["number"], res_post.status_code)
             return (data["number"], res_post.status_code)
 
@@ -107,7 +116,9 @@ async def create_chapters(manga_id: int, source: Path):
             zip_path = Path(source).joinpath(n)
             ch_number = n.split(".")[0]
             data = {"number": ch_number, "price": 0, "is_premium": False}
-            tasks.append(asyncio.create_task(post_chapter(client, manga_id, data, zip_path)))
+            tasks.append(
+                asyncio.create_task(post_chapter(client, manga_id, data, zip_path))
+            )
         result = await asyncio.gather(*tasks)
         for n in result:
             print(n)
