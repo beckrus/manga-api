@@ -6,11 +6,11 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     env_file:
-      - .env
+      - ./backend/.env
     ports:
       - 8000:8000
     volumes:
-      - ./media:/app/media
+      - ./backend/media:/app/media
     depends_on:
       redis:
         condition: service_healthy
@@ -59,7 +59,7 @@ services:
     image: celery_worker
     command: "celery --app=src.tasks.celery:celery_app worker -l INFO"
     env_file:
-      - .env
+      - ./backend/.env
     depends_on:
       - backend
     networks:
@@ -72,7 +72,7 @@ services:
       dockerfile: Dockerfile
     command: "celery --app=src.tasks.celery:celery_app beat -l INFO"
     env_file:
-      - .env
+      - ./backend/.env
     depends_on:
       - backend
     networks:
@@ -85,7 +85,7 @@ services:
       dockerfile: Dockerfile
     command: "celery --app=src.tasks.celery:celery_app flower --port=5555"
     env_file:
-      - .env
+      - ./backend/.env
     ports:
       - 5555:5555
     depends_on:
@@ -94,7 +94,7 @@ services:
        - manga_net
 
   frontend:
-    container_name: frontend
+    container_name: manga_frontend
     restart: always
     depends_on:
       - backend
@@ -107,7 +107,7 @@ services:
       - manga_net
 
   nginx:
-    container_name: proxy
+    container_name: manga_proxy
     depends_on:
       - backend
       - frontend
