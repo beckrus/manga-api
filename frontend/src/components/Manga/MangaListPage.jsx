@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
+const API_BASE_URL = '/api';
+
 const slugify = (text) =>
   text.toLowerCase().replace(/[^a-zа-я0-9]+/gi, "-").replace(/^-+|-+$/g, "");
 
@@ -12,7 +14,7 @@ function MangaListPage() {
   useEffect(() => {
     const fetchManga = async () => {
       try {
-        const response = await fetch('api/manga?page=1&per_page=10&sort=ASC');
+        const response = await fetch(`${API_BASE_URL}/manga?page=1&per_page=10&sort=ASC`);
         const data = await response.json();
         setMangaList(data);
       } catch (error) {

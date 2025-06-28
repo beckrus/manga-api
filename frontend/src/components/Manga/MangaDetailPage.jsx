@@ -2,6 +2,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Eye, Bookmark } from 'lucide-react';
 
+const API_BASE_URL = '/api';
+
 const slugify = (text) =>
   text.toLowerCase().replace(/[^a-zа-я0-9]+/gi, "-").replace(/^-+|-+$/g, "");
 
@@ -14,7 +16,7 @@ function MangaPage() {
 
   useEffect(() => {
     async function fetchManga() {
-      const res = await fetch(`api/manga/${id}`);
+      const res = await fetch(`${API_BASE_URL}/manga/${id}`);
       const data = await res.json();
       setManga(data);
 
@@ -32,7 +34,7 @@ function MangaPage() {
   // Загрузка списка глав
   useEffect(() => {
     async function fetchChapters() {
-      const res = await fetch(`api/manga/${id}/chapters`);
+      const res = await fetch(`${API_BASE_URL}/manga/${id}/chapters`);
       if (res.ok) {
         const data = await res.json();
         setChapters(data.reverse());
@@ -46,7 +48,7 @@ function MangaPage() {
   return (
     <div className="m-6">
         <div className="flex flex-col md:flex-row gap-6">
-          <img id="image" src={`api${manga.image}`} alt={manga.main_name} className="w-70 rounded shadow-lg rounded-lg"/>
+          <img id="image" src={`${API_BASE_URL}${manga.image}`} alt={manga.main_name} className="w-70 rounded shadow-lg rounded-lg"/>
           <div className="gap-2 flex flex-col mt-3">
             <h1 className="text-2xl font-bold text-gray-800"> {manga.main_name} | {manga.secondary_name}</h1>
             <div className="flex items-center space-x-6 text-gray-600 mb-2">
@@ -61,7 +63,7 @@ function MangaPage() {
             </div>
             <p><strong>Описание:</strong> {manga.description}</p>
             {manga.current_reading_chapter?
-            `<a href="api/reader?manga_id=${mangaId}&chapter_id=${manga.current_reading_chapter}" class="mt-8 inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow m-auto">Продолжить</a>`
+            `<a href="/manga/${idAndSlug}/reader/${manga.current_reading_chapter}" class="mt-8 inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow m-auto">Продолжить</a>`
             :''}
           </div>
         </div>
