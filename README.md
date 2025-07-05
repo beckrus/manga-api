@@ -20,7 +20,7 @@
 
 ## Установка и запуск
 ```
-git clone https://github.com/yourname/manga-api.git
+git clone https://github.com/beckrus/manga-api.git
 cd manga-api
 🔴create .env file❗
 docker compose up -d --build
